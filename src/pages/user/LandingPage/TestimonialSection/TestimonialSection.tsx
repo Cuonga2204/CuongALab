@@ -4,7 +4,7 @@ import { IMAGES } from "src/assets/images";
 export default function TestimonialSection() {
   return (
     <section className="bg-primary-background py-16">
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-primary mb-12">
           Cảm nhận của học viên
         </h2>

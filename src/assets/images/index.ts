@@ -12,7 +12,7 @@ import awardBadge from "./awardBadge.png";
 import codingMonitor from "./codingMonitor.png";
 import developer from "./developer.png";
 import fanPage from "./fanPage.png";
-
+import backgroundDetail from "./backgroundDetail.jpg";
 export const IMAGES = {
   heroLandingPage,
   heroIntro,
@@ -28,4 +28,5 @@ export const IMAGES = {
   developer,
   heroIntro2,
   fanPage,
+  backgroundDetail,
 };

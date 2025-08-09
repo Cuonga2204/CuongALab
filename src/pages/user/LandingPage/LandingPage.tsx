@@ -1,8 +1,8 @@
 import { Button, Space } from "antd";
-import { IMAGES } from "../../../assets/images";
+import { IMAGES } from "src/assets/images";
 
 import CourseItem from "src/components/commons/Course/CourseItem";
-import { courseMockData } from "src/mock/coursesMockData";
+import { mockCourses } from "src/mock/mockCourses";
 import AdvisorPreview from "src/pages/user/LandingPage/AdvisorPreview";
 import TestimonialSection from "src/pages/user/LandingPage/TestimonialSection";
 import WhyChooseUsSection from "src/pages/user/LandingPage/WhyChooseUsSection";
@@ -64,13 +64,13 @@ export default function LandingPage() {
         </div>
       </div>
       <div className="bg-primary-background py-10">
-        <div className="max-w-6xl mx-auto px-4 mt-16">
+        <div className="w-6xl mx-auto mt-16">
           <h2 className="text-3xl font-bold text-center text-blue-900 mb-10">
             Khóa Học Tại CuongALab
           </h2>
 
-          <div className="grid grid-cols-4 gap-6">
-            {courseMockData.map((course) => (
+          <div className="grid grid-cols-4 gap-6 px-5">
+            {mockCourses.map((course) => (
               <CourseItem key={course.id} course={course} />
             ))}
           </div>

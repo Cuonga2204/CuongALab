@@ -14,4 +14,6 @@ export interface Course {
   total_sections: number;
   total_lectures: number;
   total_video_duration: number;
+  total_hours: number;
+  category: string;
 }

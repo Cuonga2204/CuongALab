@@ -33,12 +33,9 @@ const CourseItem: React.FC<CourseItemProps> = ({ course }) => {
       }
       className="shadow-md rounded-xl overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
     >
-      {/* Tên khóa học */}
       <h3 className="text-lg font-bold text-primary line-clamp-2 min-h-[48px]">
         {course.title}
       </h3>
-
-      {/* Rating + Số đánh giá */}
       <div className="flex items-center gap-2 mt-2">
         <Rate allowHalf disabled defaultValue={course.rating_average} />
         <span className="text-sm text-gray-500">
@@ -46,7 +43,6 @@ const CourseItem: React.FC<CourseItemProps> = ({ course }) => {
         </span>
       </div>
 
-      {/* Thông tin chi tiết */}
       <div className="text-sm text-gray-600 mt-3 space-y-1">
         <p>
           <VideoCameraOutlined /> {course.total_lectures} bài giảng -{" "}
