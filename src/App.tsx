@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import UserLayout from "src/layouts/UserLayout";
-import Login from "src/pages/other/LoginPage";
-import SignUp from "src/pages/other/SignupPage";
+import Login from "src/pages/other/auth/Screens/LoginSceen";
+import Signup from "src/pages/other/auth/Screens/SignupScreen/SignUpScreen";
 import Cart from "src/pages/user/Cart";
 import CourseDetail from "src/pages/user/CourseDetail/CourseDetail";
 import Courses from "src/pages/user/Courses";
@@ -20,7 +20,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
         </Route>
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </Router>
   );

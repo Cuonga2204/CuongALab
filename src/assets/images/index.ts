@@ -13,6 +13,7 @@ import codingMonitor from "./codingMonitor.png";
 import developer from "./developer.png";
 import fanPage from "./fanPage.png";
 import backgroundDetail from "./backgroundDetail.jpg";
+import backgroundAuth from "./backgroundAuth.jpg";
 export const IMAGES = {
   heroLandingPage,
   heroIntro,
@@ -29,4 +30,5 @@ export const IMAGES = {
   heroIntro2,
   fanPage,
   backgroundDetail,
+  backgroundAuth,
 };

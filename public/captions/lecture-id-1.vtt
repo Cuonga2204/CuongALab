@@ -1,0 +1,19 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:02.900
+So here, the add event listener function
+
+00:00:02.900 --> 00:00:04.800
+is the higher order function.
+
+00:00:04.800 --> 00:00:06.000
+And why?
+
+00:00:06.000 --> 00:00:10.000
+Well, because it receives another function as an input.
+
+00:00:10.000 --> 00:00:13.500
+In this case, the greet function.
+
+00:00:13.500 --> 00:00:18.200
+And we usually say that the function that is passed in is a callback function.

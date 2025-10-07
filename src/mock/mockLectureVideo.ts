@@ -1,4 +1,4 @@
-import type { Lecture } from "src/types/lectureVideo.type";
+import type { Lecture } from "src/types/lecture.type";
 import { videoUrls } from "src/videoUrls/videoUrls";
 
 export const mockLecture: Lecture[] = [
@@ -6,6 +6,7 @@ export const mockLecture: Lecture[] = [
     id: "lecture-id-1",
     section_id: "sec-1",
     video_url: videoUrls.course_1.section_1.lecture_1,
+    captions_url: "/captions/lecture-id-1.vtt",
     lecture_title: "I. Giao diện chung & trải nghiệm người dùng",
     position_in_section: 1,
     duration: 20,
