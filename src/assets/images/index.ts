@@ -14,6 +14,7 @@ import developer from "./developer.png";
 import fanPage from "./fanPage.png";
 import backgroundDetail from "./backgroundDetail.jpg";
 import backgroundAuth from "./backgroundAuth.jpg";
+import defaultPlaceholder from "./defaultPlaceholder.png";
 export const IMAGES = {
   heroLandingPage,
   heroIntro,
@@ -31,4 +32,5 @@ export const IMAGES = {
   fanPage,
   backgroundDetail,
   backgroundAuth,
+  defaultPlaceholder,
 };

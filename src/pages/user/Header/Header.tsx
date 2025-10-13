@@ -5,8 +5,9 @@ import {
   UserOutlined,
 } from "@ant-design/icons";
 import { Badge, Flex, Input, Space } from "antd";
-import { IMAGES } from "../../../assets/images";
-import { Link } from "react-router-dom";
+import { IMAGES } from "src/assets/images";
+import { NavLink, Link } from "react-router-dom";
+
 export default function UserHeader() {
   return (
     <div className="flex py-1.5 px-5 items-center justify-between bg-[#0a033c] h-17 fixed w-full z-100">
@@ -17,6 +18,7 @@ export default function UserHeader() {
           style={{ height: 60, marginRight: 8, cursor: "pointer" }}
         />
       </Link>
+
       <Flex
         justify="space-between"
         className="w-6xl"
@@ -29,24 +31,49 @@ export default function UserHeader() {
         />
 
         <Space size={40}>
-          <Link
+          <NavLink
             to="/"
-            className="cursor-pointer text-white font-semibold hover:text-[#00ADEF] transition-colors duration-300"
+            className={({ isActive }) =>
+              `transition-colors duration-300 font-normal ${
+                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
+              }`
+            }
           >
             Home
-          </Link>
-          <Link
+          </NavLink>
+
+          <NavLink
             to="/courses"
-            className="cursor-pointer text-white  font-semibold hover:text-[#00ADEF] transition-colors duration-300"
+            className={({ isActive }) =>
+              `transition-colors duration-300  ${
+                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
+              }`
+            }
           >
             Courses
-          </Link>
-          <div className="cursor-pointer text-white  font-semibold hover:text-[#00ADEF] transition-colors duration-300">
-            My favorite
-          </div>
-          <div className="cursor-pointer text-white  font-semibold hover:text-[#00ADEF] transition-colors duration-300">
+          </NavLink>
+
+          <NavLink
+            to="/favorites"
+            className={({ isActive }) =>
+              `transition-colors duration-300  ${
+                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
+              }`
+            }
+          >
+            My Favorite
+          </NavLink>
+
+          <NavLink
+            to="/my-courses"
+            className={({ isActive }) =>
+              `transition-colors duration-300 ${
+                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
+              }`
+            }
+          >
             My Courses
-          </div>
+          </NavLink>
         </Space>
       </Flex>
 
