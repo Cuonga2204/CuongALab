@@ -7,8 +7,7 @@ export const mockLecture: Lecture[] = [
     section_id: "sec-1",
     video_url: videoUrls.course_1.section_1.lecture_1,
     captions_url: "/captions/lecture-id-1.vtt",
-    lecture_title: "I. Giao diện chung & trải nghiệm người dùng",
-    position_in_section: 1,
+    lecture_title: "1. Giao diện chung & trải nghiệm người dùng",
     duration: 20,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -31,8 +30,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-2",
     section_id: "sec-1",
     video_url: "https://video-platform.com/video2.mp4",
-    lecture_title: "II. Tìm kiếm & Khám phá sản phẩm",
-    position_in_section: 2,
+    lecture_title: "2. Tìm kiếm & Khám phá sản phẩm",
     duration: 25,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -55,8 +53,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-3",
     section_id: "sec-1",
     video_url: "https://video-platform.com/video3.mp4",
-    lecture_title: "III. Trang chi tiết & tương tác sản phẩm",
-    position_in_section: 3,
+    lecture_title: "3. Trang chi tiết & tương tác sản phẩm",
     duration: 30,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -79,8 +76,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-4",
     section_id: "sec-2",
     video_url: "https://video-platform.com/video4.mp4",
-    lecture_title: "I. Quản lý danh mục & sản phẩm",
-    position_in_section: 1,
+    lecture_title: "1. Quản lý danh mục & sản phẩm",
     duration: 18,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -103,8 +99,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-5",
     section_id: "sec-2",
     video_url: "https://video-platform.com/video5.mp4",
-    lecture_title: "II. Dashboard thống kê",
-    position_in_section: 2,
+    lecture_title: "2. Dashboard thống kê",
     duration: 15,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -127,8 +122,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-6",
     section_id: "sec-3",
     video_url: "https://video-platform.com/video6.mp4",
-    lecture_title: "I. Giới thiệu File Storage Microservice",
-    position_in_section: 1,
+    lecture_title: "1. Giới thiệu File Storage Microservice",
     duration: 22,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -152,7 +146,6 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     section_id: "sec-3",
     video_url: "https://video-platform.com/video7.mp4",
     lecture_title: "II. Tích hợp dịch vụ lưu trữ",
-    position_in_section: 2,
     duration: 28,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -175,8 +168,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-8",
     section_id: "sec-4",
     video_url: "https://video-platform.com/video8.mp4",
-    lecture_title: "I. Tổng quan Node.js",
-    position_in_section: 1,
+    lecture_title: "1. Tổng quan Node.js",
     duration: 30,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -199,8 +191,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-9",
     section_id: "sec-4",
     video_url: "https://video-platform.com/video9.mp4",
-    lecture_title: "II. Modules & Package Manager",
-    position_in_section: 2,
+    lecture_title: "2. Modules & Package Manager",
     duration: 20,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",
@@ -223,8 +214,7 @@ Tổng kết: Tóm tắt lại các điểm chính, đưa ra lời khuyên và �
     id: "lv-10",
     section_id: "sec-4",
     video_url: "https://video-platform.com/video10.mp4",
-    lecture_title: "III. EventEmitter & Streams",
-    position_in_section: 3,
+    lecture_title: "3. EventEmitter & Streams",
     duration: 25,
     lesson: [
       "Trang chủ linh hoạt, thay đổi banner/nội dung dễ dàng từ admin",

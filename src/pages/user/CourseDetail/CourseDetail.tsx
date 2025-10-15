@@ -20,9 +20,7 @@ export default function CourseDetail() {
 
   if (!course) return <p className="text-center mt-10">Course not found</p>;
 
-  const sections = mockSections
-    .filter((s) => s.course_id === id)
-    .sort((a, b) => a.position_in_course - b.position_in_course);
+  const sections = mockSections.filter((s) => s.course_id === id);
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen relative">
@@ -108,11 +106,9 @@ export default function CourseDetail() {
 
             <Collapse accordion>
               {sections.map((section) => {
-                const lectures = mockLecture
-                  .filter((lv) => lv.section_id === section.id)
-                  .sort(
-                    (a, b) => a.position_in_section - b.position_in_section
-                  );
+                const lectures = mockLecture.filter(
+                  (lv) => lv.section_id === section.id
+                );
 
                 return (
                   <Panel
@@ -156,7 +152,7 @@ export default function CourseDetail() {
             ₫{course.price_current.toLocaleString()}
           </p>
           <p className="line-through text-gray-400 text-sm">
-            ₫{course.price_old.toLocaleString()}
+            ₫{course.price_current.toLocaleString()}
           </p>
 
           <Button

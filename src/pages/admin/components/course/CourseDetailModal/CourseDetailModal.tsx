@@ -1,13 +1,4 @@
-import {
-  Modal,
-  Form,
-  Input,
-  Select,
-  InputNumber,
-  Row,
-  Col,
-  Typography,
-} from "antd";
+import { Modal, Form, Input, Select, InputNumber, Row, Col } from "antd";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,13 +13,12 @@ import {
   useGetAllCourses,
   useUpdateCourse,
 } from "src/pages/admin/hooks/course/useCourse.hooks";
-
-const { Text } = Typography;
+import SectionManager from "./Section/SectionManager";
 
 interface CourseDetailModalProps {
   open: boolean;
   mode: "view" | "edit";
-  course: Course | undefined;
+  course?: Course;
   onClose: () => void;
 }
 
@@ -38,6 +28,7 @@ export default function CourseDetailModal({
   course,
   onClose,
 }: CourseDetailModalProps) {
+  // === react-hook-form ===
   const {
     control,
     handleSubmit,
@@ -54,9 +45,7 @@ export default function CourseDetailModal({
   const { refetch } = useGetAllCourses();
 
   useEffect(() => {
-    if (open && course) {
-      reset(course);
-    }
+    if (open && course) reset(course);
   }, [open, course, reset]);
 
   const handleClose = () => {
@@ -66,8 +55,7 @@ export default function CourseDetailModal({
 
   const onFormSubmit = (data: CourseFormData) => {
     if (!course) return;
-
-    updateCourseMutation.mutate({ id: course._id, data });
+    updateCourseMutation.mutate({ id: course.id, data });
     refetch();
     handleClose();
   };
@@ -78,7 +66,7 @@ export default function CourseDetailModal({
       open={open}
       onCancel={handleClose}
       onOk={handleSubmit(onFormSubmit)}
-      okText={isViewMode ? undefined : "Update"}
+      okText={isViewMode ? undefined : "Update Course"}
       cancelText={isViewMode ? "Close" : "Cancel"}
       width={950}
       centered
@@ -86,6 +74,7 @@ export default function CourseDetailModal({
         style: isViewMode ? { display: "none" } : {},
       }}
     >
+      {/* === COURSE FORM === */}
       <Form layout="vertical" style={{ marginTop: 16 }}>
         {/* === Avatar Upload === */}
         <Controller
@@ -226,44 +215,10 @@ export default function CourseDetailModal({
             </Form.Item>
           </Col>
         </Row>
-
-        {/* === Row 4: Additional Info === */}
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="Student Count">
-              <Text>{course?.student_count ?? 0}</Text>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Total Lectures">
-              <Text>{course?.total_lectures ?? 0}</Text>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Total Sections">
-              <Text>{course?.total_sections ?? 0}</Text>
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Row gutter={16}>
-          <Col span={8}>
-            <Form.Item label="Total Video Duration (minutes)">
-              <Text>{course?.total_video_duration ?? 0}</Text>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Total Hours">
-              <Text>{course?.total_hours ?? 0}</Text>
-            </Form.Item>
-          </Col>
-          <Col span={8}>
-            <Form.Item label="Average Rating">
-              <Text>{course?.rating_average ?? 0}</Text>
-            </Form.Item>
-          </Col>
-        </Row>
       </Form>
+
+      {/* === SECTION & LECTURE MANAGER === */}
+      <SectionManager isViewMode={isViewMode} courseId={course!.id} />
     </Modal>
   );
 }

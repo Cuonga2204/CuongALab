@@ -10,8 +10,24 @@ import { NavLink, Link } from "react-router-dom";
 
 export default function UserHeader() {
   return (
-    <div className="flex py-1.5 px-5 items-center justify-between bg-[#0a033c] h-17 fixed w-full z-100">
-      <Link to="/" className="w-40">
+    <div
+      style={{
+        backgroundColor: "#0a033c",
+        height: 68,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "8px 24px",
+        position: "fixed",
+        width: "100%",
+        zIndex: 100,
+      }}
+    >
+      {/* ===== Logo ===== */}
+      <Link
+        to="/"
+        style={{ width: 160, display: "flex", alignItems: "center" }}
+      >
         <img
           src={IMAGES.logo}
           alt="Logo"
@@ -19,65 +35,69 @@ export default function UserHeader() {
         />
       </Link>
 
+      {/* ===== Search + Nav ===== */}
       <Flex
         justify="space-between"
-        className="w-6xl"
-        style={{ paddingLeft: 20, paddingRight: 20 }}
+        align="center"
+        style={{
+          flex: 1,
+          paddingLeft: 20,
+          paddingRight: 20,
+          maxWidth: 1000,
+        }}
       >
+        {/* --- Search box --- */}
         <Input
           placeholder="Search for anything"
           prefix={<SearchOutlined />}
-          style={{ width: 350, height: 35 }}
+          style={{
+            width: 350,
+            height: 35,
+            borderRadius: 6,
+          }}
         />
 
-        <Space size={40}>
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `transition-colors duration-300 font-normal ${
-                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
-              }`
-            }
-          >
-            Home
-          </NavLink>
-
-          <NavLink
-            to="/courses"
-            className={({ isActive }) =>
-              `transition-colors duration-300  ${
-                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
-              }`
-            }
-          >
-            Courses
-          </NavLink>
-
-          <NavLink
-            to="/favorites"
-            className={({ isActive }) =>
-              `transition-colors duration-300  ${
-                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
-              }`
-            }
-          >
-            My Favorite
-          </NavLink>
-
-          <NavLink
-            to="/my-courses"
-            className={({ isActive }) =>
-              `transition-colors duration-300 ${
-                isActive ? "text-[#00ADEF]" : "text-white hover:text-[#00ADEF]"
-              }`
-            }
-          >
-            My Courses
-          </NavLink>
+        {/* --- Navigation Links --- */}
+        <Space
+          size={40}
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          {[
+            { label: "Home", path: "/" },
+            { label: "Courses", path: "/courses" },
+            { label: "My Favorite", path: "/favorites" },
+            { label: "My Courses", path: "/my-courses" },
+          ].map(({ label, path }) => (
+            <NavLink
+              key={path}
+              to={path}
+              style={({ isActive }) => ({
+                color: isActive ? "#00ADEF" : "#fff",
+                fontWeight: 400, // fix text bold issue
+                textDecoration: "none",
+                transition: "color 0.3s ease",
+              })}
+              className="hover:text-[#00ADEF]"
+            >
+              {label}
+            </NavLink>
+          ))}
         </Space>
       </Flex>
 
-      <div className="flex gap-8 w-40">
+      {/* ===== Icons ===== */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 24,
+          width: 160,
+          justifyContent: "flex-end",
+        }}
+      >
         <Link to="/cart">
           <Badge count={0} showZero>
             <ShoppingCartOutlined

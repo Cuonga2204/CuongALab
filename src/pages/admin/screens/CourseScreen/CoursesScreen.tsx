@@ -19,7 +19,7 @@ import type { ColumnsType } from "antd/es/table";
 import { useGetAllCourses } from "src/pages/admin/hooks/course/useCourse.hooks";
 import { useDeleteCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import CourseModal from "src/pages/admin/components/course/CreateCourseModal";
-import CourseDetailModal from "src/pages/admin/components/course/CourseDetailModal";
+import CourseDetailModal from "src/pages/admin/components/course/CourseDetailModal/CourseDetailModal";
 import type { Course } from "src/types/course.type";
 import { Loader } from "src/components/commons/Loader/Loader";
 import { DisplayLoadApi } from "src/components/commons/DisplayLoadApi/DisplayLoadApi";
@@ -64,7 +64,7 @@ export default function CoursesScreen() {
       okType: "danger",
       cancelText: "Cancel",
       centered: true,
-      onOk: () => deleteCourseMutation.mutate(course._id),
+      onOk: () => deleteCourseMutation.mutate(course.id),
     });
   };
 
@@ -123,7 +123,7 @@ export default function CoursesScreen() {
           />
           <Button
             type="text"
-            icon={<EditOutlined />}
+            icon={<EditOutlined style={{ color: "#1890ff" }} />}
             onClick={() => handleEdit(record)}
           />
           <Button
