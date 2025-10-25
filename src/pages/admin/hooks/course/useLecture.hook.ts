@@ -5,6 +5,7 @@ import {
   updateLecture,
   deleteLecture,
   getLecturesBySection,
+  getLectureDetail,
 } from "src/pages/admin/api/lecture.api";
 import type { Lecture } from "src/types/lecture.type";
 
@@ -27,6 +28,16 @@ export const useCreateLecture = () => {
       queryClient.invalidateQueries({ queryKey: ["lectures"] });
     },
     onError: () => toast.error("Thêm Lecture thất bại!"),
+  });
+};
+
+/** === GET LECTURE DETAIL === */
+
+export const useGetLectureDetail = (id: string) => {
+  return useQuery({
+    queryKey: ["lectureDetail", id],
+    queryFn: () => getLectureDetail(id),
+    enabled: !!id, // chỉ gọi khi có id
   });
 };
 

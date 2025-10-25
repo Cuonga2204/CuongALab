@@ -12,6 +12,7 @@ import {
   ValidationMessageEnum,
 } from "src/constants/validation-message";
 import type { CourseFormData } from "src/pages/admin/types/course.types";
+import type { Course } from "src/types/course.type";
 
 /** === GET ALL COURSE === */
 
@@ -68,7 +69,7 @@ export const useDeleteCourse = () => {
 /** === GET COURSE DETAIL === */
 
 export const useGetCourseDetail = (id: string) => {
-  return useQuery({
+  return useQuery<Course>({
     queryKey: ["course-detail", id],
     queryFn: () => getCourseDetail(id),
     enabled: !!id,

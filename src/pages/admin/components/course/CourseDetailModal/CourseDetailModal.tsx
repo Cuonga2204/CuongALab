@@ -4,9 +4,8 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { COURSE_CATEGORIES_OPTIONS } from "src/constants/course.constants";
 import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
-import type { Course } from "src/types/course.type";
 import {
-  courseRequestSchema,
+  CourseFormDataSchema,
   type CourseFormData,
 } from "src/pages/admin/types/course.types";
 import {
@@ -14,11 +13,12 @@ import {
   useUpdateCourse,
 } from "src/pages/admin/hooks/course/useCourse.hooks";
 import SectionManager from "./Section/SectionManager";
+import type { Course } from "src/types/course.type";
 
 interface CourseDetailModalProps {
   open: boolean;
   mode: "view" | "edit";
-  course?: Course;
+  course?: CourseFormData | Course;
   onClose: () => void;
 }
 
@@ -35,7 +35,7 @@ export default function CourseDetailModal({
     formState: { errors },
     reset,
   } = useForm<CourseFormData>({
-    resolver: zodResolver(courseRequestSchema),
+    resolver: zodResolver(CourseFormDataSchema),
   });
 
   const isViewMode = mode === "view";
@@ -45,7 +45,9 @@ export default function CourseDetailModal({
   const { refetch } = useGetAllCourses();
 
   useEffect(() => {
-    if (open && course) reset(course);
+    if (open && course) {
+      reset(course);
+    }
   }, [open, course, reset]);
 
   const handleClose = () => {
@@ -218,7 +220,9 @@ export default function CourseDetailModal({
       </Form>
 
       {/* === SECTION & LECTURE MANAGER === */}
-      <SectionManager isViewMode={isViewMode} courseId={course!.id} />
+      {course && (
+        <SectionManager isViewMode={isViewMode} courseId={course.id} />
+      )}
     </Modal>
   );
 }

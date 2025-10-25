@@ -4,11 +4,42 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { Badge, Flex, Input, Space } from "antd";
+import { Badge, Dropdown, Flex, Input, Menu, Space } from "antd";
 import { IMAGES } from "src/assets/images";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useGetUserCart } from "src/pages/user/Cart/hooks/useCart.hooks";
+import { useAuthStore } from "src/store/authStore";
+import { useLogout } from "src/pages/other/auth/hooks/useLogout.hook";
+import { MyCoursesPathsEnum } from "src/pages/user/MyCourses/constants/user-courses.paths";
 
 export default function UserHeader() {
+  const { user } = useAuthStore();
+  const { data } = useGetUserCart(user?.id || "");
+  const navigate = useNavigate();
+  const { logout } = useLogout();
+
+  const handleMenuClick = ({ key }: { key: string }) => {
+    if (key === "profile") navigate("/profile");
+    if (key === "logout") {
+      logout();
+    }
+  };
+  const menu = (
+    <Menu
+      onClick={handleMenuClick}
+      items={[
+        {
+          key: "profile",
+          label: "Profile",
+        },
+        {
+          key: "logout",
+          label: "Logout",
+          danger: true,
+        },
+      ]}
+    />
+  );
   return (
     <div
       style={{
@@ -39,44 +70,26 @@ export default function UserHeader() {
       <Flex
         justify="space-between"
         align="center"
-        style={{
-          flex: 1,
-          paddingLeft: 20,
-          paddingRight: 20,
-          maxWidth: 1000,
-        }}
+        style={{ flex: 1, paddingLeft: 20, paddingRight: 20, maxWidth: 1000 }}
       >
-        {/* --- Search box --- */}
         <Input
           placeholder="Search for anything"
           prefix={<SearchOutlined />}
-          style={{
-            width: 350,
-            height: 35,
-            borderRadius: 6,
-          }}
+          style={{ width: 350, height: 35, borderRadius: 6 }}
         />
 
-        {/* --- Navigation Links --- */}
-        <Space
-          size={40}
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+        <Space size={40} style={{ display: "flex", alignItems: "center" }}>
           {[
             { label: "Home", path: "/" },
             { label: "Courses", path: "/courses" },
             { label: "My Favorite", path: "/favorites" },
-            { label: "My Courses", path: "/my-courses" },
+            { label: "My Courses", path: MyCoursesPathsEnum.MY_COURSES },
           ].map(({ label, path }) => (
             <NavLink
               key={path}
               to={path}
               style={({ isActive }) => ({
                 color: isActive ? "#00ADEF" : "#fff",
-                fontWeight: 400, // fix text bold issue
                 textDecoration: "none",
                 transition: "color 0.3s ease",
               })}
@@ -99,19 +112,19 @@ export default function UserHeader() {
         }}
       >
         <Link to="/cart">
-          <Badge count={0} showZero>
+          <Badge count={data?.totalQuantity} showZero>
             <ShoppingCartOutlined
               style={{ fontSize: 20, color: "white", cursor: "pointer" }}
             />
           </Badge>
         </Link>
 
-        <BellOutlined
-          style={{ fontSize: 20, color: "white", cursor: "pointer" }}
-        />
-        <UserOutlined
-          style={{ fontSize: 20, color: "white", cursor: "pointer" }}
-        />
+        <BellOutlined style={{ fontSize: 20, color: "white" }} />
+        <Dropdown overlay={menu} placement="bottomRight" trigger={["click"]}>
+          <UserOutlined
+            style={{ fontSize: 20, color: "white", cursor: "pointer" }}
+          />
+        </Dropdown>
       </div>
     </div>
   );

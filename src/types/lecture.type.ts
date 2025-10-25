@@ -14,3 +14,13 @@ export interface Lecture {
   transcript: string;
   captions_url?: string;
 }
+export interface LectureResponse {
+  id: string;
+  section_id: string;
+  video: string;
+  lecture_title: string;
+  duration: number;
+  lesson: string[];
+  transcript: string;
+  captions_url?: string;
+}

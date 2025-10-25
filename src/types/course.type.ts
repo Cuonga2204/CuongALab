@@ -3,7 +3,7 @@ import type { COURSE_CATEGORIES } from "src/constants/course.constants";
 export interface Course {
   id: string;
   title: string;
-  avatar: File;
+  avatar: string;
   price_current: number;
   name_teacher: string;
   rating_average: number;

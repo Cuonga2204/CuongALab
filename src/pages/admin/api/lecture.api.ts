@@ -1,7 +1,7 @@
 import axiosClientFormData from "src/api/axiosClientFormData";
 import axiosClient from "src/api/axiosClient";
 import { LectureEndpointsEnum } from "src/pages/admin/constants/lecture.endpoints";
-import type { Lecture } from "src/types/lecture.type";
+import type { Lecture, LectureResponse } from "src/types/lecture.type";
 
 /** === CREATE LECTURE === */
 export const createLecture = async (data: Lecture) => {
@@ -10,6 +10,16 @@ export const createLecture = async (data: Lecture) => {
     data
   );
   return response.data.data;
+};
+
+/** === GET LECTURE DETAIL === */
+export const getLectureDetail = async (
+  id: string
+): Promise<LectureResponse> => {
+  const res = await axiosClient.get(
+    LectureEndpointsEnum.GET_DETAIL.replace(":id", id)
+  );
+  return res.data.data;
 };
 
 /** === UPDATE LECTURE === */

@@ -7,7 +7,7 @@ import type { Course } from "src/types/course.type";
 import { COURSE_CATEGORIES_OPTIONS } from "src/constants/course.constants";
 import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
 import {
-  courseRequestSchema,
+  CourseFormDataSchema,
   type CourseFormData,
 } from "src/pages/admin/types/course.types";
 import {
@@ -35,7 +35,7 @@ export default function CourseModal({
     formState: { errors, isValid },
     reset,
   } = useForm<CourseFormData>({
-    resolver: zodResolver(courseRequestSchema),
+    resolver: zodResolver(CourseFormDataSchema),
   });
 
   const { refetch } = useGetAllCourses();
