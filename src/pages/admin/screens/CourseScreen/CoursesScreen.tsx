@@ -55,8 +55,6 @@ export default function CoursesScreen() {
   };
 
   const handleDelete = (course: Course) => {
-    console.log("handle delete");
-    console.log(`courseDelete`, course);
     Modal.confirm({
       title: "Delete Course",
       content: `Are you sure you want to delete "${course.title}"?`,
