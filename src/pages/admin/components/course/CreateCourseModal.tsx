@@ -7,8 +7,8 @@ import type { Course } from "src/types/course.type";
 import { COURSE_CATEGORIES_OPTIONS } from "src/constants/course.constants";
 import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
 import {
-  CourseFormDataSchema,
-  type CourseFormData,
+  CourseCreateFormDataSchema,
+  type CourseCreateFormData,
 } from "src/pages/admin/types/course.types";
 import {
   useCreateCourse,
@@ -20,7 +20,7 @@ interface CourseModalProps {
   mode: "view" | "edit" | "create";
   course: Course | undefined;
   onClose: () => void;
-  onSubmit: (data: CourseFormData) => void;
+  onSubmit: (data: CourseCreateFormData) => void;
 }
 
 export default function CourseModal({
@@ -34,8 +34,8 @@ export default function CourseModal({
     handleSubmit,
     formState: { errors, isValid },
     reset,
-  } = useForm<CourseFormData>({
-    resolver: zodResolver(CourseFormDataSchema),
+  } = useForm<CourseCreateFormData>({
+    resolver: zodResolver(CourseCreateFormDataSchema),
   });
 
   const { refetch } = useGetAllCourses();
@@ -66,14 +66,17 @@ export default function CourseModal({
 
   const handleClose = () => {
     reset();
-    refetch();
     onClose();
   };
   const createCourseMutation = useCreateCourse();
 
-  const onFormSubmit = (data: CourseFormData) => {
-    createCourseMutation.mutate(data);
-    handleClose();
+  const onFormSubmit = (data: CourseCreateFormData) => {
+    createCourseMutation.mutate(data, {
+      onSuccess: () => {
+        handleClose();
+        refetch();
+      },
+    });
   };
 
   return (
@@ -83,7 +86,15 @@ export default function CourseModal({
       onCancel={handleClose}
       okText={isViewMode ? undefined : mode === "edit" ? "update" : "create"}
       cancelText={isViewMode ? "Close" : "Cancel"}
-      onOk={handleSubmit(onFormSubmit)}
+      onOk={handleSubmit(
+        (data) => {
+          console.log("VALID", data);
+          onFormSubmit(data);
+        },
+        (err) => {
+          console.log("INVALID FORM", err);
+        }
+      )}
       width={900}
       centered
       okButtonProps={{
@@ -91,7 +102,7 @@ export default function CourseModal({
         disabled: !isValid,
       }}
     >
-      <Form layout="vertical" style={{ marginTop: 16 }}>
+      <Form id="course-form" layout="vertical" style={{ marginTop: 16 }}>
         <Controller
           name="avatar"
           control={control}

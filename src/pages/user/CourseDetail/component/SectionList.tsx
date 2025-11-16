@@ -37,21 +37,25 @@ export default function SectionList({
       <Collapse accordion defaultActiveKey={[sections[0].id]}>
         {sections.map((section: Section, index: number) => {
           // Nếu chưa ghi danh thì chỉ section đầu tiên có thể học
-          const isLectureLocked = !isEnrolled && index > 0;
-
+          const isLectureLocked = !isEnrolled;
+          const letter = String.fromCharCode(65 + index);
           return (
             <Panel
               key={section.id}
               header={
                 <div className="flex justify-between items-center">
                   <span>
-                    {section.title} ({section.total_lectures} bài •{" "}
-                    {section.total_duration} phút)
+                    {letter} .{section.title}
+                    {/* ({section.total_lectures} bài •{" "}
+                    {section.total_duration} phút) */}
                   </span>
                 </div>
               }
             >
-              <LectureList sectionId={section.id} isLocked={isLectureLocked} />
+              <LectureList
+                sectionId={section.id}
+                isLectureLocked={isLectureLocked}
+              />
             </Panel>
           );
         })}

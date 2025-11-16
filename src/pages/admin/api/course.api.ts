@@ -1,9 +1,12 @@
 import axiosClient from "src/api/axiosClient";
 import axiosClientFormData from "src/api/axiosClientFormData";
 import { CourseEndpointsEnum } from "src/pages/admin/constants/course.endpoints";
-import type { CourseFormData } from "src/pages/admin/types/course.types";
+import type {
+  CourseCreateFormData,
+  CourseFormData,
+} from "src/pages/admin/types/course.types";
 
-export const createCourse = async (formData: CourseFormData) => {
+export const createCourse = async (formData: CourseCreateFormData) => {
   const response = await axiosClientFormData.post(
     CourseEndpointsEnum.CREATE_COURSE,
     formData

@@ -4,4 +4,5 @@ export interface Section {
   title: string;
   total_lectures: number;
   total_duration: number;
+  order: number;
 }

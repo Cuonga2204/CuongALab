@@ -39,6 +39,15 @@ export const getLecturesBySection = async (sectionId: string) => {
   return response.data.data;
 };
 
+// Reorder API
+export const reorderLectures = async (data: {
+  sectionId: string;
+  newOrder: { id: string; position_in_section: number }[];
+}) => {
+  const res = await axiosClient.put(LectureEndpointsEnum.REORDER_LECTURE, data);
+  return res.data.data;
+};
+
 /** === DELETE === */
 export const deleteLecture = async (id: string) => {
   const response = await axiosClient.delete(

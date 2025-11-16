@@ -5,6 +5,7 @@ import {
   updateSection,
   deleteSection,
   getSectionsByCourse,
+  reorderSections,
 } from "src/pages/admin/api/section.api";
 import type { Section } from "src/types/section.type";
 
@@ -41,6 +42,24 @@ export const useUpdateSection = () => {
       queryClient.invalidateQueries({ queryKey: ["sections"] });
     },
     onError: () => toast.error("Cập nhật Section thất bại!"),
+  });
+};
+
+//
+
+export const useReorderSections = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: {
+      courseId: string;
+      newOrder: { id: string; order: number }[];
+    }) => reorderSections(body),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["sections"] });
+    },
+    onError: () => toast.error("Sắp xếp section thất bại!"),
   });
 };
 

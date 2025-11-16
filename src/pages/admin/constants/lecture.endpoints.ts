@@ -4,4 +4,5 @@ export enum LectureEndpointsEnum {
   UPDATE_LECTURE = "/lecture/update/:id",
   DELETE_LECTURE = "/lecture/delete/:id",
   GET_DETAIL = "/lecture/:id",
+  REORDER_LECTURE = "lecture/reorder",
 }

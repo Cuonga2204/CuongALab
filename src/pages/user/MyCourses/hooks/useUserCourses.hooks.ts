@@ -2,6 +2,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { UserCourseApi } from "src/pages/user/MyCourses/apis/user-courses.apis";
+import type { UserCourse } from "src/pages/user/MyCourses/types/user-courses.types";
 
 /** 🟢 Ghi danh vào khóa học */
 export const useEnrollCourse = () => {
@@ -18,7 +19,7 @@ export const useEnrollCourse = () => {
 
 /** 🔵 Lấy danh sách khóa học của user */
 export const useGetCoursesByUser = (user_id: string) => {
-  return useQuery({
+  return useQuery<UserCourse[]>({
     queryKey: ["user-courses", user_id],
     queryFn: () => UserCourseApi.getCoursesByUser(user_id),
     enabled: !!user_id,

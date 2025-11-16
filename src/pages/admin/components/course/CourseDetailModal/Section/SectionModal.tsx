@@ -18,19 +18,32 @@ export default function SectionModal({
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (selectedSection) form.setFieldsValue(selectedSection);
-    else form.resetFields();
-  }, [selectedSection, form]);
+    if (isOpen) {
+      if (selectedSection) form.setFieldsValue(selectedSection);
+      else form.resetFields();
+    } else {
+      form.resetFields();
+    }
+  }, [isOpen, selectedSection, form]);
 
-  const handleOk = () => {
-    form.validateFields().then(onSubmit);
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      onSubmit(values);
+      form.resetFields();
+    } catch (err) {
+      console.log("Validation error:", err);
+    }
   };
 
   return (
     <Modal
       title={selectedSection ? "Edit Section" : "Add Section"}
       open={isOpen}
-      onCancel={onCancel}
+      onCancel={() => {
+        form.resetFields();
+        onCancel();
+      }}
       onOk={handleOk}
     >
       <Form layout="vertical" form={form}>

@@ -28,6 +28,17 @@ export const updateSection = async (id: string, data: Partial<Section>) => {
   return response.data.data;
 };
 
+export const reorderSections = async (body: {
+  courseId: string;
+  newOrder: { id: string; order: number }[];
+}) => {
+  const response = await axiosClient.put(
+    SectionEndpointsEnum.REORDER_SECTIONS, // 🆕 endpoint mới
+    body
+  );
+  return response.data.data;
+};
+
 /** === DELETE SECTION === */
 export const deleteSection = async (id: string) => {
   const response = await axiosClient.delete(

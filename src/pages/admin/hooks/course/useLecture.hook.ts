@@ -6,6 +6,7 @@ import {
   deleteLecture,
   getLecturesBySection,
   getLectureDetail,
+  reorderLectures,
 } from "src/pages/admin/api/lecture.api";
 import type { Lecture } from "src/types/lecture.type";
 
@@ -52,6 +53,22 @@ export const useUpdateLecture = () => {
       queryClient.invalidateQueries({ queryKey: ["lectures"] });
     },
     onError: () => toast.error("Cập nhật Lecture thất bại!"),
+  });
+};
+
+// Reorder Lecture
+export const useReorderLectures = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      sectionId: string;
+      newOrder: { id: string; position_in_section: number }[];
+    }) => reorderLectures(payload),
+    onSuccess: () => {
+      toast.success("Reordered successfully!");
+      queryClient.invalidateQueries({ queryKey: ["lectures"] });
+    },
+    onError: () => toast.error("Reorder failed!"),
   });
 };
 

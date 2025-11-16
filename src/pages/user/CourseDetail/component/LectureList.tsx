@@ -8,10 +8,13 @@ import type { Lecture } from "src/types/lecture.type";
 
 interface LectureListProps {
   sectionId: string;
-  isLocked?: boolean;
+  isLectureLocked?: boolean;
 }
 
-export default function LectureList({ sectionId, isLocked }: LectureListProps) {
+export default function LectureList({
+  sectionId,
+  isLectureLocked,
+}: LectureListProps) {
   const navigate = useNavigate();
   const { id: courseId } = useParams();
 
@@ -19,15 +22,18 @@ export default function LectureList({ sectionId, isLocked }: LectureListProps) {
 
   if (isLoading) return <Loader />;
   if (!lectures?.length) return <DisplayLoadApi />;
-
+  console.log(`isLectureLocked`, isLectureLocked);
   return (
     <div>
-      {lectures.map((lecture: Lecture) => (
-        <Tooltip title={isLocked ? "Bạn cần đăng ký để học phần này" : ""}>
+      {lectures.map((lecture: Lecture, index: number) => (
+        <Tooltip
+          title={isLectureLocked ? "Bạn cần đăng ký để học phần này" : ""}
+          key={lecture.id}
+        >
           <div
             key={lecture.id}
             onClick={() => {
-              if (!isLocked) {
+              if (!isLectureLocked) {
                 navigate(
                   LecturePathsEnum.Lecture.replace(
                     ":courseId",
@@ -38,15 +44,15 @@ export default function LectureList({ sectionId, isLocked }: LectureListProps) {
             }}
             className={`border border-dashed border-gray-300 p-4 m-2.5 rounded-md transition 
             ${
-              isLocked
+              isLectureLocked
                 ? "cursor-not-allowed opacity-60 bg-gray-100"
                 : "cursor-pointer hover:bg-blue-50"
             }`}
           >
             <h4 className="font-semibold text-[#00ADEF] flex items-center gap-2">
-              ▶ {lecture.lecture_title}
+              {index + 1}. ▶ {lecture.lecture_title}
               <span className="text-xs text-gray-500">
-                ({lecture.duration} phút)
+                {/* ({lecture.duration} phút) */}
               </span>
             </h4>
           </div>

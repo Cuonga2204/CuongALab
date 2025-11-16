@@ -11,7 +11,10 @@ import {
   SuccessMessageEnum,
   ValidationMessageEnum,
 } from "src/constants/validation-message";
-import type { CourseFormData } from "src/pages/admin/types/course.types";
+import type {
+  CourseCreateFormData,
+  CourseFormData,
+} from "src/pages/admin/types/course.types";
 import type { Course } from "src/types/course.type";
 
 /** === GET ALL COURSE === */
@@ -28,7 +31,7 @@ export const useGetAllCourses = () => {
 export const useCreateCourse = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (formData: CourseFormData) => createCourse(formData),
+    mutationFn: (formData: CourseCreateFormData) => createCourse(formData),
     onSuccess: () => {
       toast.success(SuccessMessageEnum["COURSE-001"]);
       queryClient.invalidateQueries({ queryKey: ["courses"] });

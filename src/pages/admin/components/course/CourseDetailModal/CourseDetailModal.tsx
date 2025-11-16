@@ -8,10 +8,7 @@ import {
   CourseFormDataSchema,
   type CourseFormData,
 } from "src/pages/admin/types/course.types";
-import {
-  useGetAllCourses,
-  useUpdateCourse,
-} from "src/pages/admin/hooks/course/useCourse.hooks";
+import { useUpdateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import SectionManager from "./Section/SectionManager";
 import type { Course } from "src/types/course.type";
 
@@ -42,7 +39,6 @@ export default function CourseDetailModal({
   const modalTitle = isViewMode ? "Course Details" : "Edit Course";
 
   const updateCourseMutation = useUpdateCourse();
-  const { refetch } = useGetAllCourses();
 
   useEffect(() => {
     if (open && course) {
@@ -56,9 +52,9 @@ export default function CourseDetailModal({
   };
 
   const onFormSubmit = (data: CourseFormData) => {
+    console.log(`data`, data);
     if (!course) return;
     updateCourseMutation.mutate({ id: course.id, data });
-    refetch();
     handleClose();
   };
 
@@ -77,7 +73,7 @@ export default function CourseDetailModal({
       }}
     >
       {/* === COURSE FORM === */}
-      <Form layout="vertical" style={{ marginTop: 16 }}>
+      <Form style={{ marginTop: 16 }}>
         {/* === Avatar Upload === */}
         <Controller
           name="avatar"

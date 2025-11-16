@@ -23,14 +23,14 @@ export default function LectureDetailSectionList({
   return (
     <div className="bg-white shadow-md rounded-lg p-6">
       <Collapse accordion>
-        {sections.map((section: Section) => (
-          <Panel
-            key={section.id}
-            header={`${section.title} (${section.total_lectures} section • ${section.total_duration} minute)`}
-          >
-            <LectureList sectionId={section.id} />
-          </Panel>
-        ))}
+        {sections.map((section: Section, index: number) => {
+          const letter = String.fromCharCode(65 + index);
+          return (
+            <Panel key={section.id} header={`${letter}. ${section.title}`}>
+              <LectureList sectionId={section.id} />
+            </Panel>
+          );
+        })}
       </Collapse>
     </div>
   );

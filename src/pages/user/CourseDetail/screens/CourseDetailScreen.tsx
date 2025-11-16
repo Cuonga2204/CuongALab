@@ -17,6 +17,8 @@ export default function CourseDetail() {
   const { data: course, isLoading } = useGetCourseDetail(id || "");
   const location = useLocation();
   const isEnrolled = location.state?.isEnrolled || false;
+  console.log(`location`, location);
+  console.log(`isEnrolled `, isEnrolled);
 
   if (isLoading) return <Loader />;
 

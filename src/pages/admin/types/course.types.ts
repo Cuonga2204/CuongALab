@@ -12,4 +12,16 @@ export const CourseFormDataSchema = z.object({
   description: z.string().optional(),
 });
 
+export const CourseCreateFormDataSchema = z.object({
+  id: z.string().optional(),
+  category: z.enum(COURSE_CATEGORIES),
+  title: z.string(),
+  avatar: z.union([z.instanceof(File), z.string()]).optional(),
+  price_current: z.number(),
+  name_teacher: z.string(),
+  overview: z.string().optional(),
+  description: z.string().optional(),
+});
+
 export type CourseFormData = z.infer<typeof CourseFormDataSchema>;
+export type CourseCreateFormData = z.infer<typeof CourseCreateFormDataSchema>;
