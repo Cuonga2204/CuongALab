@@ -11,6 +11,10 @@ import {
 import { useUpdateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import SectionManager from "./Section/SectionManager";
 import type { Course } from "src/types/course.type";
+import { useGetTeachers } from "src/pages/admin/hooks/user/useUser.hooks";
+import type { User } from "src/pages/admin/types/user.types";
+import { ROLE_USER } from "src/constants/auth.constants";
+import { useAuthStore } from "src/store/authStore";
 
 interface CourseDetailModalProps {
   open: boolean;
@@ -40,11 +44,20 @@ export default function CourseDetailModal({
 
   const updateCourseMutation = useUpdateCourse();
 
+  const { data: teachers, isLoading: loadingTeachers } = useGetTeachers();
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
+
   useEffect(() => {
-    if (open && course) {
-      reset(course);
+    if (!open) return;
+
+    if (course) {
+      reset({
+        ...course,
+        teacher_id: isTeacher ? user?.id : course.teacher_id,
+      });
     }
-  }, [open, course, reset]);
+  }, [open, course, reset, isTeacher, user]);
 
   const handleClose = () => {
     reset();
@@ -73,7 +86,7 @@ export default function CourseDetailModal({
       }}
     >
       {/* === COURSE FORM === */}
-      <Form style={{ marginTop: 16 }}>
+      <Form layout="vertical" style={{ marginTop: 16 }}>
         {/* === Avatar Upload === */}
         <Controller
           name="avatar"
@@ -107,15 +120,35 @@ export default function CourseDetailModal({
 
           <Col span={12}>
             <Form.Item
-              label="Teacher Name"
-              validateStatus={errors.name_teacher ? "error" : ""}
-              help={errors.name_teacher?.message}
+              label="Teacher"
+              validateStatus={errors.teacher_id ? "error" : ""}
+              help={errors.teacher_id?.message}
             >
               <Controller
-                name="name_teacher"
+                name="teacher_id"
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} readOnly={isViewMode} size="large" />
+                  <Select
+                    {...field}
+                    size="large"
+                    placeholder="Select a teacher"
+                    disabled={isTeacher || isViewMode}
+                    loading={loadingTeachers}
+                    value={isTeacher ? user?.id : field.value}
+                    options={
+                      isTeacher
+                        ? [
+                            {
+                              label: user?.name,
+                              value: user?.id,
+                            },
+                          ]
+                        : teachers?.map((t: User) => ({
+                            label: t.name,
+                            value: t.id,
+                          })) || []
+                    }
+                  />
                 )}
               />
             </Form.Item>

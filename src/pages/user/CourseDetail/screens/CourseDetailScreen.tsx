@@ -55,7 +55,7 @@ export default function CourseDetail() {
           </div>
 
           <p className="text-sm mt-2">
-            Teacher : <span>{course?.name_teacher}</span>
+            Teacher : <span>{course?.teacher_id}</span>
           </p>
           <p className="text-sm text-gray-400">
             Last updated 12/2024 • English [Auto]
@@ -134,7 +134,7 @@ export default function CourseDetail() {
             </p>
             <p className="flex items-center gap-2">
               <UserOutlined style={{ color: "#16a34a" }} />
-              Giảng viên: {course?.name_teacher}
+              Giảng viên: {course?.teacher_id}
             </p>
           </div>
         </div>

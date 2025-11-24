@@ -7,7 +7,7 @@ export const CourseFormDataSchema = z.object({
   title: z.string(),
   avatar: z.union([z.instanceof(File), z.string()]).optional(),
   price_current: z.number(),
-  name_teacher: z.string(),
+  teacher_id: z.string(),
   overview: z.string().optional(),
   description: z.string().optional(),
 });
@@ -18,7 +18,7 @@ export const CourseCreateFormDataSchema = z.object({
   title: z.string(),
   avatar: z.union([z.instanceof(File), z.string()]).optional(),
   price_current: z.number(),
-  name_teacher: z.string(),
+  teacher_id: z.string(),
   overview: z.string().optional(),
   description: z.string().optional(),
 });

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminLayout from "src/layouts/AdminLayout";
+import TeacherLayout from "src/layouts/TeacherLayout/TeacherLayout";
 import UserLayout from "src/layouts/UserLayout";
 import CoursesScreen from "src/pages/admin/screens/CourseScreen";
 import DashboardScreen from "src/pages/admin/screens/DashboardScreen/DashboardScreen";
@@ -36,6 +37,11 @@ function App() {
           <Route path="/favorite-course" element={<FavoriteCourse />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<DashboardScreen />} />
+          <Route path="users" element={<UsersScreen />} />
+          <Route path="courses" element={<CoursesScreen />} />
+        </Route>
+        <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />
           <Route path="users" element={<UsersScreen />} />
           <Route path="courses" element={<CoursesScreen />} />

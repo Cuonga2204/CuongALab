@@ -1,80 +1,134 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
+
 import {
   createCourse,
   updateCourse,
   deleteCourse,
   getCourseDetail,
   getAllCourses,
+  getCoursesByTeacher,
 } from "src/pages/admin/api/course.api";
+
 import {
   SuccessMessageEnum,
   ValidationMessageEnum,
 } from "src/constants/validation-message";
+
 import type {
   CourseCreateFormData,
   CourseFormData,
 } from "src/pages/admin/types/course.types";
+
 import type { Course } from "src/types/course.type";
 
-/** === GET ALL COURSE === */
+import { useAuthStore } from "src/store/authStore";
+import { ROLE_USER } from "src/constants/auth.constants";
 
-export const useGetAllCourses = () => {
-  return useQuery({
+/* ===========================================================
+    GET ALL COURSES (Admin only)
+=========================================================== */
+export const useGetAllCourses = () =>
+  useQuery({
     queryKey: ["courses"],
-    queryFn: () => getAllCourses(),
+    queryFn: getAllCourses,
   });
-};
 
-/** === CREATE COURSE === */
+/* ===========================================================
+    GET COURSES BY TEACHER (Teacher only)
+=========================================================== */
+export const useGetCoursesByTeacher = (teacherId: string, enabled = true) =>
+  useQuery({
+    queryKey: ["teacher-courses", teacherId],
+    queryFn: () => getCoursesByTeacher(teacherId),
+    enabled: !!teacherId && enabled,
+  });
 
+/* ===========================================================
+    CREATE COURSE
+=========================================================== */
 export const useCreateCourse = () => {
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (formData: CourseCreateFormData) => createCourse(formData),
+
     onSuccess: () => {
       toast.success(SuccessMessageEnum["COURSE-001"]);
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
+
+      // 🟢 Teacher → invalidate course list của teacher
+      if (isTeacher) {
+        queryClient.invalidateQueries({ queryKey: ["teacher-courses"] });
+      } else {
+        // 🟢 Admin → invalidate tất cả courses
+        queryClient.invalidateQueries({ queryKey: ["courses"] });
+      }
     },
+
     onError: () => toast.error(ValidationMessageEnum["COURSE-001"]),
   });
 };
 
-/** === UPDATE COURSE === */
-
+/* ===========================================================
+    UPDATE COURSE
+=========================================================== */
 export const useUpdateCourse = () => {
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: CourseFormData }) =>
       updateCourse(id, data),
+
     onSuccess: () => {
       toast.success(SuccessMessageEnum["COURSE-003"]);
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
+
+      if (isTeacher) {
+        queryClient.invalidateQueries({ queryKey: ["teacher-courses"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["courses"] });
+      }
+      queryClient.invalidateQueries({ queryKey: ["course-detail"] });
     },
+
     onError: () => toast.error(ValidationMessageEnum["COURSE-003"]),
   });
 };
 
-/** === DELETE COURSE === */
-
+/* ===========================================================
+    DELETE COURSE
+=========================================================== */
 export const useDeleteCourse = () => {
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (id: string) => deleteCourse(id),
+
     onSuccess: () => {
       toast.success(SuccessMessageEnum["COURSE-002"]);
-      queryClient.invalidateQueries({ queryKey: ["courses"] });
+
+      if (isTeacher) {
+        queryClient.invalidateQueries({ queryKey: ["teacher-courses"] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["courses"] });
+      }
     },
+
     onError: () => toast.error(ValidationMessageEnum["COURSE-002"]),
   });
 };
 
-/** === GET COURSE DETAIL === */
-
-export const useGetCourseDetail = (id: string) => {
-  return useQuery<Course>({
+/* ===========================================================
+    GET COURSE DETAIL
+=========================================================== */
+export const useGetCourseDetail = (id: string) =>
+  useQuery<Course>({
     queryKey: ["course-detail", id],
     queryFn: () => getCourseDetail(id),
     enabled: !!id,
   });
-};

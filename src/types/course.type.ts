@@ -5,7 +5,7 @@ export interface Course {
   title: string;
   avatar: string;
   price_current: number;
-  name_teacher: string;
+  teacher_id: string;
   rating_average: number;
   overview: string;
   description: string;

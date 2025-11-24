@@ -16,15 +16,20 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import { useGetAllCourses } from "src/pages/admin/hooks/course/useCourse.hooks";
+import {
+  useGetAllCourses,
+  useGetCoursesByTeacher,
+} from "src/pages/admin/hooks/course/useCourse.hooks";
 import { useDeleteCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
-import CourseModal from "src/pages/admin/components/course/CreateCourseModal";
 import CourseDetailModal from "src/pages/admin/components/course/CourseDetailModal/CourseDetailModal";
 import type { Course } from "src/types/course.type";
 import { Loader } from "src/components/commons/Loader/Loader";
 import { DisplayLoadApi } from "src/components/commons/DisplayLoadApi/DisplayLoadApi";
 import { getImageSrc } from "src/helpers/get-img-src.helpers";
 import { getPrice } from "src/helpers/getPrice.helper";
+import { useAuthStore } from "src/store/authStore";
+import { ROLE_USER } from "src/constants/auth.constants";
+import CreateCourseModal from "src/pages/admin/components/course/CreateCourseModal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -37,10 +42,29 @@ export default function CoursesScreen() {
     undefined
   );
 
-  const { data, isLoading, isError } = useGetAllCourses();
   const deleteCourseMutation = useDeleteCourse();
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
+  const teacherId = user?.id;
 
-  const courses: Course[] = data?.courses || [];
+  const allCourses = useGetAllCourses();
+  const teacherCourses = useGetCoursesByTeacher(teacherId!, isTeacher);
+
+  const {
+    data: courses,
+    isLoading,
+    isError,
+  } = isTeacher
+    ? {
+        data: teacherCourses.data || [],
+        isLoading: teacherCourses.isLoading,
+        isError: teacherCourses.isError,
+      }
+    : {
+        data: allCourses.data?.courses || [],
+        isLoading: allCourses.isLoading,
+        isError: allCourses.isError,
+      };
 
   const handleView = (course: Course) => {
     setSelectedCourse(course);
@@ -149,7 +173,9 @@ export default function CoursesScreen() {
       <Space style={{ width: "100%", justifyContent: "space-between" }}>
         <Space direction="vertical" size={0}>
           <Title level={2} style={{ margin: 0 }}>
-            Courses Management
+            {isTeacher
+              ? `Hello Teacher  ${user?.name}`
+              : `Hello Admin ${user?.name}`}
           </Title>
           <Paragraph style={{ margin: 0, color: "#8c8c8c" }}>
             Manage and monitor all courses
@@ -177,22 +203,23 @@ export default function CoursesScreen() {
       </Card>
 
       {/* Modals */}
-      {modalMode === "create" ? (
-        <CourseModal
-          open={modalOpen}
-          mode="create"
-          course={selectedCourse}
-          onClose={handleClose}
-          onSubmit={() => {}}
-        />
-      ) : (
-        <CourseDetailModal
-          open={modalOpen}
-          mode={modalMode}
-          course={selectedCourse}
-          onClose={handleClose}
-        />
-      )}
+      {modalOpen &&
+        (modalMode === "create" ? (
+          <CreateCourseModal
+            open={modalOpen}
+            mode="create"
+            course={selectedCourse}
+            onClose={handleClose}
+            onSubmit={() => {}}
+          />
+        ) : (
+          <CourseDetailModal
+            open={modalOpen}
+            mode={modalMode}
+            course={selectedCourse}
+            onClose={handleClose}
+          />
+        ))}
     </Space>
   );
 }

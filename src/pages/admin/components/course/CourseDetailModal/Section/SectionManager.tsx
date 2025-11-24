@@ -14,6 +14,7 @@ import {
   useUpdateSection,
   useReorderSections,
 } from "src/pages/admin/hooks/course/useSection.hooks";
+import SectionQuizManager from "src/pages/admin/components/course/CourseDetailModal/Section/SectionQuiz/SectionQuizManager";
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -185,6 +186,10 @@ export default function SectionManager({
                             <LectureManager
                               section={section}
                               isViewMode={isViewMode}
+                            />
+                            <SectionQuizManager
+                              sectionId={section.id}
+                              courseId={courseId}
                             />
                           </Panel>
                         </Collapse>

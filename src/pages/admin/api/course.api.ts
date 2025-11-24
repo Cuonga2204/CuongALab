@@ -28,6 +28,15 @@ export const getCourseDetail = async (id: string) => {
   return response.data.data;
 };
 
+//get courses by teacher
+
+export const getCoursesByTeacher = async (teacherId: string) => {
+  const response = await axiosClient.get(
+    CourseEndpointsEnum.GET_BY_TEACHER.replace(":teacherId", teacherId)
+  );
+  return response.data.data;
+};
+
 /** === UPDATE COURSE === */
 export const updateCourse = async (id: string, formData: CourseFormData) => {
   const response = await axiosClientFormData.put(

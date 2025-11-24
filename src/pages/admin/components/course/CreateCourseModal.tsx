@@ -14,8 +14,12 @@ import {
   useCreateCourse,
   useGetAllCourses,
 } from "src/pages/admin/hooks/course/useCourse.hooks";
+import { useGetTeachers } from "src/pages/admin/hooks/user/useUser.hooks";
+import type { User } from "src/types/auth.type";
+import { useAuthStore } from "src/store/authStore";
+import { ROLE_USER } from "src/constants/auth.constants";
 
-interface CourseModalProps {
+interface CreateCourseModalProps {
   open: boolean;
   mode: "view" | "edit" | "create";
   course: Course | undefined;
@@ -23,12 +27,12 @@ interface CourseModalProps {
   onSubmit: (data: CourseCreateFormData) => void;
 }
 
-export default function CourseModal({
+export default function CreateCourseModal({
   open,
   mode,
   course,
   onClose,
-}: CourseModalProps) {
+}: CreateCourseModalProps) {
   const {
     control,
     handleSubmit,
@@ -40,6 +44,10 @@ export default function CourseModal({
 
   const { refetch } = useGetAllCourses();
 
+  const { data: teachers, isLoading: loadingTeachers } = useGetTeachers();
+  const { user } = useAuthStore();
+  const isTeacher = user?.role === ROLE_USER.TEACHER;
+
   const isViewMode = mode === "view";
   const modalTitle =
     mode === "view"
@@ -50,19 +58,22 @@ export default function CourseModal({
 
   useEffect(() => {
     if (open && course) {
-      reset(course);
+      reset({
+        ...course,
+        teacher_id: isTeacher ? user.id : course.teacher_id,
+      });
     } else if (open && !course) {
       reset({
         title: "",
         avatar: undefined,
         price_current: 0,
-        name_teacher: "",
+        teacher_id: isTeacher ? user.id : "",
         overview: "",
         description: "",
         category: COURSE_CATEGORIES_OPTIONS[0].value,
       });
     }
-  }, [open, course, reset]);
+  }, [open, course, reset, isTeacher, user]);
 
   const handleClose = () => {
     reset();
@@ -135,15 +146,31 @@ export default function CourseModal({
 
           <Col span={12}>
             <Form.Item
-              label="Teacher Name"
-              validateStatus={errors.name_teacher ? "error" : ""}
-              help={errors.name_teacher?.message}
+              label="Teacher"
+              validateStatus={errors.teacher_id ? "error" : ""}
+              help={errors.teacher_id?.message}
             >
               <Controller
-                name="name_teacher"
+                name="teacher_id"
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} disabled={isViewMode} size="large" />
+                  <Select
+                    {...field}
+                    size="large"
+                    disabled={isViewMode || isTeacher}
+                    loading={loadingTeachers}
+                    placeholder={
+                      isTeacher ? "You are the teacher" : "Select a teacher"
+                    }
+                    options={
+                      isTeacher
+                        ? [{ label: user.name, value: user.id }]
+                        : teachers?.map((t: User) => ({
+                            label: t.name,
+                            value: t.id,
+                          })) || []
+                    }
+                  />
                 )}
               />
             </Form.Item>
