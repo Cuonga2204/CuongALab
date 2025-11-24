@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { DisplayLoadApi } from "src/components/commons/DisplayLoadApi/DisplayLoadApi";
 import { Loader } from "src/components/commons/Loader/Loader";
 import { useGetLecturesBySection } from "src/pages/admin/hooks/course/useLecture.hook";
-import { LecturePathsEnum } from "src/pages/user/Lecture/constatns/lecture.paths";
+import { LecturePathsEnum } from "src/pages/user/Lecture/constants/lecture.paths";
 import type { Lecture } from "src/types/lecture.type";
 
 interface LectureListProps {
