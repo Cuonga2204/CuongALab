@@ -1,155 +1,158 @@
-import { Card, Row, Col, Typography, Space, List, Tag, Statistic } from "antd";
+import { useState } from "react";
 import {
-  UserOutlined,
-  BookOutlined,
-  RiseOutlined,
-  TrophyOutlined,
-  StarFilled,
+  Card,
+  Row,
+  Col,
+  Typography,
+  DatePicker,
+  Select,
+  Space,
+  Spin,
+} from "antd";
+import {
+  DollarOutlined,
+  ShoppingCartOutlined,
+  UserAddOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 
-const { Title, Text, Paragraph } = Typography;
+import type { RevenueStats } from "src/pages/admin/types/dashboard.types";
+import { useDashboardStats } from "src/pages/admin/hooks/dashboard/useDashboardStats.hook";
+import DashboardChart from "src/pages/admin/components/dashboard/DashboardChart";
+import DashboardColumnChart from "src/pages/admin/components/dashboard/DashboardColumnChart";
+
+const { Title, Text } = Typography;
 
 export default function DashboardScreen() {
-  const stats = [
-    {
-      title: "Total Users",
-      value: 2543,
-      change: "+12%",
-      icon: <UserOutlined style={{ fontSize: 24, color: "#1890ff" }} />,
-      color: "#e6f7ff",
-    },
-    {
-      title: "Active Courses",
-      value: 48,
-      change: "+8%",
-      icon: <BookOutlined style={{ fontSize: 24, color: "#52c41a" }} />,
-      color: "#f6ffed",
-    },
-    {
-      title: "Total Revenue",
-      value: 42890,
-      prefix: "$",
-      change: "+23%",
-      icon: <RiseOutlined style={{ fontSize: 24, color: "#fa8c16" }} />,
-      color: "#fff7e6",
-    },
-    {
-      title: "Certifications",
-      value: 1289,
-      change: "+15%",
-      icon: <TrophyOutlined style={{ fontSize: 24, color: "#eb2f96" }} />,
-      color: "#fff0f6",
-    },
-  ];
+  const [filterType, setFilterType] = useState<"month" | "range">("month");
+  const [month, setMonth] = useState(dayjs());
+  const [range, setRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
-  const activities = [
-    { action: "New user registered", user: "John Doe", time: "2 minutes ago" },
-    { action: "Course completed", user: "Jane Smith", time: "15 minutes ago" },
-    { action: "New enrollment", user: "Mike Johnson", time: "1 hour ago" },
-    { action: "Payment received", user: "Sarah Williams", time: "2 hours ago" },
-  ];
+  const from =
+    filterType === "month"
+      ? month.startOf("month").format("YYYY-MM-DD")
+      : range
+      ? range[0].format("YYYY-MM-DD")
+      : undefined;
 
-  const topCourses = [
-    { title: "Advanced React Development", students: 245, rating: 4.8 },
-    { title: "Data Science with Python", students: 312, rating: 4.9 },
-    { title: "Mobile App Development", students: 201, rating: 4.7 },
-    { title: "UI/UX Design Fundamentals", students: 189, rating: 4.6 },
-  ];
+  const to =
+    filterType === "month"
+      ? month.endOf("month").format("YYYY-MM-DD")
+      : range
+      ? range[1].format("YYYY-MM-DD")
+      : undefined;
 
+  const { data, isLoading } = useDashboardStats(from, to);
+
+  const stats: RevenueStats | undefined = data;
+  console.log(`stats`, stats);
   return (
-    <Space
-      direction="vertical"
-      size="large"
-      style={{ width: "100%", padding: 24 }}
-    >
-      <Space direction="vertical" size="small">
-        <Title level={2} style={{ margin: 0 }}>
-          Dashboard Overview
-        </Title>
-        <Paragraph style={{ margin: 0, color: "#8c8c8c" }}>
-          Welcome back! Here's what's happening today.
-        </Paragraph>
-      </Space>
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      {/* TITLE */}
+      <Title level={2} style={{ margin: 0 }}>
+        Dashboard Overview
+      </Title>
 
-      <Row gutter={[24, 24]}>
-        {stats.map((stat, index) => (
-          <Col xs={24} sm={12} lg={6} key={index}>
-            <Card hoverable>
-              <Space
-                direction="vertical"
-                size="middle"
-                style={{ width: "100%" }}
-              >
-                <Space
-                  style={{ width: "100%", justifyContent: "space-between" }}
-                >
-                  <Space
-                    style={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 8,
-                      background: stat.color,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {stat.icon}
-                  </Space>
-                  <Tag color="success">{stat.change}</Tag>
-                </Space>
-                <Space direction="vertical" size={0}>
-                  <Text type="secondary">{stat.title}</Text>
-                  <Statistic value={stat.value} prefix={stat.prefix} />
-                </Space>
+      {/* FILTER BAR */}
+      <Card>
+        <Space size="large" wrap>
+          <Select
+            value={filterType}
+            onChange={(v) => setFilterType(v)}
+            style={{ width: 180 }}
+            options={[
+              { value: "month", label: "Filter by Month" },
+              { value: "range", label: "Filter by Date Range" },
+            ]}
+          />
+
+          {filterType === "month" ? (
+            <DatePicker
+              picker="month"
+              value={month}
+              onChange={(v) => v && setMonth(v)}
+            />
+          ) : (
+            <DatePicker.RangePicker
+              value={range}
+              onChange={(v) => setRange(v)}
+            />
+          )}
+        </Space>
+      </Card>
+
+      {/* LOADING */}
+      {isLoading && (
+        <div style={{ textAlign: "center", padding: 40 }}>
+          <Spin size="large" />
+        </div>
+      )}
+
+      {/* STAT CARDS */}
+      {!isLoading && stats && (
+        <Row gutter={[16, 16]}>
+          <Col span={6}>
+            <Card>
+              <Space direction="vertical">
+                <Text>Total Revenue</Text>
+                <Title level={3} style={{ margin: 0 }}>
+                  {stats.revenue.toLocaleString()}₫
+                </Title>
+                <DollarOutlined style={{ fontSize: 32, color: "#52c41a" }} />
               </Space>
             </Card>
           </Col>
-        ))}
-      </Row>
 
-      <Row gutter={[24, 24]}>
-        <Col xs={24} lg={12}>
-          <Card title="Recent Activity">
-            <List
-              dataSource={activities}
-              renderItem={(activity) => (
-                <List.Item>
-                  <Space direction="vertical" size={0} style={{ flex: 1 }}>
-                    <Text strong>{activity.action}</Text>
-                    <Text type="secondary">{activity.user}</Text>
-                  </Space>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    {activity.time}
-                  </Text>
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
+          <Col span={6}>
+            <Card>
+              <Space direction="vertical">
+                <Text>Courses Sold</Text>
+                <Title level={3} style={{ margin: 0 }}>
+                  {stats.courseSold}
+                </Title>
+                <ShoppingCartOutlined
+                  style={{ fontSize: 32, color: "#1890ff" }}
+                />
+              </Space>
+            </Card>
+          </Col>
 
-        <Col xs={24} lg={12}>
-          <Card title="Top Courses">
-            <List
-              dataSource={topCourses}
-              renderItem={(course) => (
-                <List.Item>
-                  <Space direction="vertical" size={0} style={{ flex: 1 }}>
-                    <Text strong>{course.title}</Text>
-                    <Text type="secondary">
-                      {course.students} students enrolled
-                    </Text>
-                  </Space>
-                  <Space>
-                    <StarFilled style={{ color: "#fadb14" }} />
-                    <Text strong>{course.rating}</Text>
-                  </Space>
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-      </Row>
+          <Col span={6}>
+            <Card>
+              <Space direction="vertical">
+                <Text>Order </Text>
+                <Title level={3} style={{ margin: 0 }}>
+                  {stats.totalTransactions}
+                </Title>
+                <CheckCircleOutlined
+                  style={{ fontSize: 32, color: "#52c41a" }}
+                />
+              </Space>
+            </Card>
+          </Col>
+
+          <Col span={6}>
+            <Card>
+              <Space direction="vertical">
+                <Text>New Users</Text>
+                <Title level={3} style={{ margin: 0 }}>
+                  {stats.newUsers}
+                </Title>
+                <UserAddOutlined style={{ fontSize: 32, color: "#fa8c16" }} />
+              </Space>
+            </Card>
+          </Col>
+        </Row>
+      )}
+
+      <Card title="Revenue Chart (Monthly)">
+        <DashboardChart from={from} to={to} />
+      </Card>
+
+      {stats?.courseRevenue && (
+        <DashboardColumnChart data={stats.courseRevenue} />
+      )}
     </Space>
   );
 }

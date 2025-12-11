@@ -15,9 +15,12 @@ export const createCourse = async (formData: CourseCreateFormData) => {
 };
 
 /** == GET ALL COURSES === */
-export const getAllCourses = async () => {
-  const response = await axiosClient.get(CourseEndpointsEnum.GET_ALL);
-  return response.data.data; // { total, page, limit, courses }
+export const getAllCourses = async (page = 1, limit = 10) => {
+  const res = await axiosClient.get(CourseEndpointsEnum.GET_ALL, {
+    params: { page, limit },
+  });
+
+  return res.data.data;
 };
 
 /** === GET COURSE DETAIL === */

@@ -9,13 +9,20 @@ export interface LectureProgressUpdatePayLoad {
 
 export interface LectureProgress {
   id: string;
-  user_id: string;
-  course_id: string;
-  section_id: string;
   lecture_id: string;
+  section_id: string;
+  course_id: string;
+  user_id: string;
   watched_seconds: number;
-  last_watched_at: number; // %
+  percentage_watched: number;
+  percentage: number;
   is_completed: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface LectureProgressItem {
+  lecture_id: string;
+  percentage: number; // percentage_watched
+  watched_seconds?: number; // optional nếu server trả về
 }

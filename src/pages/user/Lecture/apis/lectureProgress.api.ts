@@ -18,3 +18,13 @@ export const getLectureProgress = async (lectureId: string, userId: string) => {
   );
   return res.data.data;
 };
+
+export const getProgressBySection = async (
+  sectionId: string,
+  userId: string
+) => {
+  const res = await axiosClient.get(
+    `/lecture-progress/section/${sectionId}?userId=${userId}`
+  );
+  return res.data.data;
+};

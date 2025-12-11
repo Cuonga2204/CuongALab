@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import {
@@ -28,12 +33,15 @@ import { ROLE_USER } from "src/constants/auth.constants";
 /* ===========================================================
     GET ALL COURSES (Admin only)
 =========================================================== */
-export const useGetAllCourses = () =>
-  useQuery({
-    queryKey: ["courses"],
-    queryFn: getAllCourses,
+export const useGetAllCourses = (page?: number, limit?: number) => {
+  return useQuery({
+    queryKey: ["courses", page, limit],
+    queryFn: () => getAllCourses(page, limit),
+    placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
   });
-
+};
 /* ===========================================================
     GET COURSES BY TEACHER (Teacher only)
 =========================================================== */

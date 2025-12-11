@@ -4,7 +4,7 @@ import { Button } from "src/components/commons/Button/Button";
 
 export default function PaymentSuccess() {
   const [params] = useSearchParams();
-  const cartOrderId = params.get("cartOrderId");
+  const orderId = params.get("orderId");
   const navigate = useNavigate();
 
   return (
@@ -14,7 +14,7 @@ export default function PaymentSuccess() {
         Thanh toán thành công 🎉
       </h1>
       <p className="text-gray-600 mt-2">
-        Mã đơn hàng của bạn: <strong>{cartOrderId}</strong>
+        Mã đơn hàng của bạn: <strong>{orderId}</strong>
       </p>
 
       <Button

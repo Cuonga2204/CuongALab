@@ -6,7 +6,6 @@ import {
   SuccessMessageEnum,
   ValidationMessageEnum,
 } from "src/constants/validation-message";
-import { LandingPagePathsEnum } from "src/pages/user/LandingPage/constants/LandingPage.path";
 import type { LoginRequest } from "src/pages/other/auth/types/auth.types";
 import { useAuthStore } from "src/store/authStore";
 
@@ -17,9 +16,21 @@ export const useLogin = () => {
     mutationFn: (data: LoginRequest) => loginUser(data),
     onSuccess: async (res) => {
       await setAuth(res.accessToken, res.user);
+      // Redirect theo role
+      switch (res.user.role) {
+        case "admin":
+          navigate("/admin/courses");
+          break;
+
+        case "teacher":
+          navigate("/teacher/courses");
+          break;
+
+        default:
+          navigate("/"); // user bình thường → trang user home
+      }
 
       toast.success(SuccessMessageEnum["AUTH-001"]);
-      navigate(LandingPagePathsEnum.LANDING_PAGE);
     },
     onError: () => {
       toast.error(ValidationMessageEnum["AUTH-0005"]);

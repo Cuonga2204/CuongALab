@@ -6,19 +6,37 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { Button, Rate } from "antd";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { IMAGES } from "src/assets/images";
 import { Loader } from "src/components/commons/Loader/Loader";
 import { useGetCourseDetail } from "src/pages/admin/hooks/course/useCourse.hooks";
 import SectionList from "src/pages/user/CourseDetail/component/SectionList";
+import { usePaymentCourse } from "src/pages/user/CourseDetail/hooks/usePaymentCourse..hooks";
+import { useGetCoursesByUser } from "src/pages/user/MyCourses/hooks/useUserCourses.hooks";
+import { useAuthStore } from "src/store/authStore";
 
 export default function CourseDetail() {
   const { id } = useParams();
+  const { user } = useAuthStore();
   const { data: course, isLoading } = useGetCourseDetail(id || "");
-  const location = useLocation();
-  const isEnrolled = location.state?.isEnrolled || false;
-  console.log(`location`, location);
-  console.log(`isEnrolled `, isEnrolled);
+
+  const { data: userCourses = [] } = useGetCoursesByUser(user?.id || "");
+
+  const isEnrolled = userCourses.some(
+    (userCourse) => userCourse.courseId === id
+  );
+
+  const paymentCourseMutation = usePaymentCourse();
+
+  const handleBuyCourse = () => {
+    if (!course || !user) return;
+
+    paymentCourseMutation.mutate({
+      userId: user.id,
+      courseId: course.id,
+      price: course.price_current,
+    });
+  };
 
   if (isLoading) return <Loader />;
 
@@ -55,7 +73,7 @@ export default function CourseDetail() {
           </div>
 
           <p className="text-sm mt-2">
-            Teacher : <span>{course?.teacher_id}</span>
+            Teacher : <span>{course?.name_teacher}</span>
           </p>
           <p className="text-sm text-gray-400">
             Last updated 12/2024 • English [Auto]
@@ -114,6 +132,7 @@ export default function CourseDetail() {
             <Button
               type="primary"
               className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              onClick={() => handleBuyCourse()}
             >
               Đăng Ký Học
             </Button>
@@ -130,11 +149,12 @@ export default function CourseDetail() {
             </p>
             <p className="flex items-center gap-2">
               <ReadOutlined style={{ color: "#f97316" }} />
-              {course?.total_lectures} bài giảng
+              {"12 "}
+              bài giảng
             </p>
             <p className="flex items-center gap-2">
               <UserOutlined style={{ color: "#16a34a" }} />
-              Giảng viên: {course?.teacher_id}
+              Giảng viên: {course?.name_teacher}
             </p>
           </div>
         </div>

@@ -12,9 +12,9 @@ import { useUpdateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import SectionManager from "./Section/SectionManager";
 import type { Course } from "src/types/course.type";
 import { useGetTeachers } from "src/pages/admin/hooks/user/useUser.hooks";
-import type { User } from "src/pages/admin/types/user.types";
 import { ROLE_USER } from "src/constants/auth.constants";
 import { useAuthStore } from "src/store/authStore";
+import type { User } from "src/types/user.type";
 
 interface CourseDetailModalProps {
   open: boolean;
@@ -65,7 +65,6 @@ export default function CourseDetailModal({
   };
 
   const onFormSubmit = (data: CourseFormData) => {
-    console.log(`data`, data);
     if (!course) return;
     updateCourseMutation.mutate({ id: course.id, data });
     handleClose();

@@ -1,23 +1,14 @@
 import { Modal, Form, Input, Select } from "antd";
 import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useEffect } from "react";
-import type { User } from "src/pages/admin/types/user.types";
 
-const userSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  role: z.string().min(1, "Role is required"),
-  status: z.string().min(1, "Status is required"),
-});
-
-type UserFormData = z.infer<typeof userSchema>;
+import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
+import type { UserFormData } from "src/pages/admin/types/user.types";
 
 interface UserModalProps {
   open: boolean;
   mode: "view" | "edit" | "create";
-  user: User | null;
+  user: UserFormData | null;
   onClose: () => void;
   onSubmit: (data: UserFormData) => void;
 }
@@ -29,55 +20,72 @@ export default function UserModal({
   onClose,
   onSubmit,
 }: UserModalProps) {
+  const isViewMode = mode === "view";
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
-    defaultValues: user || undefined,
-  });
+  } = useForm<UserFormData>();
 
   useEffect(() => {
     if (open && user) {
-      reset(user);
-    } else if (open && !user) {
-      reset({ name: "", email: "", role: "", status: "" });
+      reset({
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        phone: user.phone?.toString() ?? "",
+        avatar: user.avatar ?? undefined,
+      });
+    } else if (open) {
+      reset({
+        name: "",
+        email: "",
+        role: "user",
+        phone: "",
+        avatar: undefined,
+      });
     }
   }, [open, user, reset]);
 
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
-
-  const onFormSubmit = (data: UserFormData) => {
+  const handleFormSubmit = (data: UserFormData) => {
     onSubmit(data);
-    reset();
   };
-
-  const isViewMode = mode === "view";
-  const title =
-    mode === "view"
-      ? "User Details"
-      : mode === "edit"
-      ? "Edit User"
-      : "Add New User";
 
   return (
     <Modal
-      title={title}
+      title={
+        mode === "view"
+          ? "User Details"
+          : mode === "edit"
+          ? "Edit User"
+          : "Create User"
+      }
       open={open}
-      onCancel={handleClose}
-      onOk={handleSubmit(onFormSubmit)}
-      okText={isViewMode ? undefined : mode === "edit" ? "update" : "create"}
+      onCancel={onClose}
+      onOk={handleSubmit(handleFormSubmit)}
+      okText={isViewMode ? undefined : mode === "edit" ? "Update" : "Create"}
       cancelText={isViewMode ? "Close" : "Cancel"}
       width={600}
       centered
       okButtonProps={{ style: isViewMode ? { display: "none" } : {} }}
     >
       <Form layout="vertical" style={{ marginTop: 24 }}>
+        {/* Avatar Upload */}
+        <Controller
+          name="avatar"
+          control={control}
+          render={({ field }) => (
+            <ImageUploader
+              value={field.value}
+              onChange={field.onChange}
+              disabled={isViewMode}
+            />
+          )}
+        />
+
+        {/* Name */}
         <Form.Item
           label="Name"
           validateStatus={errors.name ? "error" : ""}
@@ -92,6 +100,7 @@ export default function UserModal({
           />
         </Form.Item>
 
+        {/* Email */}
         <Form.Item
           label="Email"
           validateStatus={errors.email ? "error" : ""}
@@ -101,16 +110,12 @@ export default function UserModal({
             name="email"
             control={control}
             render={({ field }) => (
-              <Input
-                {...field}
-                type="email"
-                disabled={isViewMode}
-                size="large"
-              />
+              <Input {...field} disabled={isViewMode} size="large" />
             )}
           />
         </Form.Item>
 
+        {/* Role */}
         <Form.Item
           label="Role"
           validateStatus={errors.role ? "error" : ""}
@@ -124,43 +129,34 @@ export default function UserModal({
                 {...field}
                 disabled={isViewMode}
                 size="large"
-                placeholder="Select a role"
                 options={[
-                  { value: "Administrator", label: "Administrator" },
-                  { value: "Instructor", label: "Instructor" },
-                  { value: "Student", label: "Student" },
+                  { value: "admin", label: "Admin" },
+                  { value: "teacher", label: "Teacher" },
+                  { value: "user", label: "User" },
                 ]}
               />
             )}
           />
         </Form.Item>
 
-        <Form.Item
-          label="Status"
-          validateStatus={errors.status ? "error" : ""}
-          help={errors.status?.message}
-        >
+        {/* Phone */}
+        <Form.Item label="Phone">
           <Controller
-            name="status"
+            name="phone"
             control={control}
             render={({ field }) => (
-              <Select
-                {...field}
-                disabled={isViewMode}
-                size="large"
-                placeholder="Select a status"
-                options={[
-                  { value: "Active", label: "Active" },
-                  { value: "Inactive", label: "Inactive" },
-                ]}
-              />
+              <Input {...field} disabled={isViewMode} size="large" />
             )}
           />
         </Form.Item>
 
         {user?.createdAt && (
           <Form.Item label="Created At">
-            <Input value={user.createdAt} disabled size="large" />
+            <Input
+              value={new Date(user.createdAt).toLocaleString()}
+              disabled
+              size="large"
+            />
           </Form.Item>
         )}
       </Form>

@@ -1,47 +1,91 @@
-// =====================================
-// Lecture.tsx (FULL UPDATED VERSION)
-// =====================================
-
 import { useState, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { Layout, Typography, Button, message } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  Layout,
+  Typography,
+  Button,
+  message,
+  Card,
+  Space,
+  Avatar,
+  Input,
+} from "antd";
 
 import { useGetLectureDetail } from "src/pages/admin/hooks/course/useLecture.hook";
 import { useGetQuizByLecture } from "src/pages/admin/hooks/videoQuiz/useVideoQuiz.hooks";
-
 import LectureDetailSectionList from "src/pages/user/Lecture/component/LectureDetailSectionList";
 
 import { Loader } from "src/components/commons/Loader/Loader";
 import { DisplayLoadApi } from "src/components/commons/DisplayLoadApi/DisplayLoadApi";
 
-import { useUpdateLectureProgress } from "src/pages/user/Lecture/hooks/useLectureProgress.hook";
+import {
+  useGetLectureProgress,
+  useUpdateLectureProgress,
+} from "src/pages/user/Lecture/hooks/useLectureProgress.hook";
+
+import { buildCommentTree } from "src/pages/user/Lecture/helpers/buildCommentTree.helper";
+
 import { useAuthStore } from "src/store/authStore";
+import { useGetCoursesByUser } from "src/pages/user/MyCourses/hooks/useUserCourses.hooks";
 
 import type {
   VideoQuiz,
   VideoQuizOption,
 } from "src/pages/admin/types/videoQuizz.types";
+import {
+  useAddComment,
+  useGetComments,
+} from "src/pages/user/Lecture/hooks/useComment.hook";
+import type { CommentItem } from "src/pages/user/Lecture/types/comment.types";
+import CommentList from "src/pages/user/Lecture/component/comment/CommentList";
 
 const { Sider, Content } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
-export default function Lecture() {
+export default function LectureScreen() {
   const { id: courseId, lectureId } = useParams();
   const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  const updateProgress = useUpdateLectureProgress();
+  const navigate = useNavigate();
   const { user } = useAuthStore();
+
+  // =========================
+  // CHECK USER ENROLLED
+  // =========================
+  const { data: userCourses = [] } = useGetCoursesByUser(user?.id || "");
+  const isEnrolled = userCourses.some((uc) => uc.courseId === courseId);
+
+  // =========================
+  // COMMENT HOOKS
+  // =========================
+  const { data: rawComments = [], refetch } = useGetComments(lectureId || "");
+  const addComment = useAddComment(lectureId || "");
+
+  // Build comment tree
+  const comments = buildCommentTree(rawComments);
+
+  // =========================
+  // LOAD LECTURE + QUIZ
+  // =========================
+  const { data: lecture, isLoading } = useGetLectureDetail(lectureId || "");
+  const { data: quizzes = [] } = useGetQuizByLecture(lectureId || "");
+
+  const { data: progress } = useGetLectureProgress(
+    lectureId || "",
+    String(user?.id)
+  );
+  const updateProgress = useUpdateLectureProgress();
 
   const [currentQuiz, setCurrentQuiz] = useState<VideoQuiz | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<VideoQuizOption | null>(
     null
   );
   const [isOpenQuiz, setIsOpenQuiz] = useState(false);
-
   const lastSentRef = useRef(0);
 
-  const { data: lecture, isLoading } = useGetLectureDetail(lectureId || "");
-  const { data: quizzes = [] } = useGetQuizByLecture(lectureId || "");
+  const [commentInput, setCommentInput] = useState("");
+  const [replyParent, setReplyParent] = useState<string | null>(null);
+  const [replyInput, setReplyInput] = useState("");
 
   const streamUrl = `${
     import.meta.env.VITE_API_URL
@@ -50,12 +94,12 @@ export default function Lecture() {
   if (isLoading) return <Loader />;
   if (!lecture) return <DisplayLoadApi />;
 
-  // =====================================================
-  // VIDEO PROGRESS HANDLER (send every 10 seconds)
-  // =====================================================
+  // =========================
+  // VIDEO PROGRESS LOGIC
+  // =========================
   const sendProgress = (current: number) => {
     const duration = Math.floor(videoRef.current?.duration || 1);
-    const percentage = Math.round((current / duration) * 100);
+    const pct = Math.round((current / duration) * 100);
 
     updateProgress.mutate({
       user_id: String(user?.id),
@@ -63,30 +107,21 @@ export default function Lecture() {
       section_id: lecture.section_id,
       lecture_id: lecture.id,
       watched_seconds: current,
-      percentage,
+      percentage: pct,
     });
   };
 
-  // =====================================================
-  // SEND PROGRESS ON SEEKED
-  // =====================================================
   const handleSeeked = () => {
     if (!videoRef.current) return;
-    const current = Math.floor(videoRef.current.currentTime);
-    sendProgress(current);
+    sendProgress(Math.floor(videoRef.current.currentTime));
   };
 
-  // =====================================================
-  // MAIN TIME UPDATE HANDLER (every 10s)
-  // =====================================================
   const handleTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
     const current = Math.floor(video.currentTime);
 
-    // If quiz is open → do nothing
     if (isOpenQuiz) return;
 
-    // Check VideoQuiz
     const foundQuiz = quizzes.find((q) => q.time_in_seconds === current);
     if (foundQuiz) {
       video.pause();
@@ -95,54 +130,141 @@ export default function Lecture() {
       return;
     }
 
-    // Send progress every 10 seconds
     if (current - lastSentRef.current >= 10) {
       lastSentRef.current = current;
       sendProgress(current);
     }
   };
 
-  // =====================================================
-  // QUIZ SUBMIT HANDLING
-  // =====================================================
-  const handleContinueVideo = () => {
-    if (videoRef.current) {
-      videoRef.current.currentTime += 1;
-      videoRef.current.play();
+  const handleLoaded = () => {
+    if (videoRef.current && progress?.watched_seconds != null) {
+      videoRef.current.currentTime = progress.watched_seconds;
     }
   };
 
-  const handleSubmitVideoQuiz = () => {
-    if (!currentQuiz) return;
+  // =========================
+  // QUIZ
+  // =========================
+  const continueVideo = () => videoRef.current?.play();
 
-    if (selectedAnswer?.is_correct) {
-      message.success("Correct Answer!");
-      handleContinueVideo();
+  const submitQuiz = () => {
+    if (!currentQuiz || !selectedAnswer) return;
+
+    if (selectedAnswer.is_correct) {
+      message.success("Chính xác!");
+      continueVideo();
       setSelectedAnswer(null);
-      setCurrentQuiz(null);
       setIsOpenQuiz(false);
+      setCurrentQuiz(null);
     } else {
-      message.warning("Sai rồi, hãy chọn lại đáp án đúng!");
+      message.error("Sai rồi!");
     }
   };
+
+  // =========================
+  // COMMENT SUBMIT
+  // =========================
+  const submitComment = () => {
+    if (!commentInput.trim()) return;
+
+    addComment.mutate(
+      {
+        lectureId: lectureId!,
+        userId: String(user?.id), // 👈 ADD THIS
+        content: commentInput,
+        parentId: null,
+      },
+      {
+        onSuccess: () => {
+          setCommentInput("");
+          refetch();
+        },
+      }
+    );
+  };
+  const submitReply = (parentId: string) => {
+    if (!replyInput.trim()) return;
+
+    addComment.mutate(
+      {
+        lectureId: lectureId!,
+        userId: String(user?.id), // 👈 ADD THIS
+        content: replyInput,
+        parentId,
+      },
+      {
+        onSuccess: () => {
+          setReplyInput("");
+          setReplyParent(null);
+          refetch();
+        },
+      }
+    );
+  };
+  // =========================
+  // RENDER COMMENT TREE
+  // =========================
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const renderComment = (c: CommentItem) => (
+    <Card key={c.id} style={{ marginBottom: 12 }}>
+      <Space align="start">
+        <Avatar>{c.user_id.name[0]}</Avatar>
+
+        <div style={{ flex: 1 }}>
+          <Text strong>{c.user_id.name}</Text>
+          <div style={{ marginTop: 4 }}>{c.content}</div>
+
+          {isEnrolled && (
+            <Button
+              type="link"
+              size="small"
+              onClick={() => setReplyParent(c.id)}
+            >
+              Reply
+            </Button>
+          )}
+
+          {/* REPLY INPUT */}
+          {replyParent === c.id && (
+            <div style={{ marginTop: 8 }}>
+              <TextArea
+                rows={2}
+                value={replyInput}
+                onChange={(e) => setReplyInput(e.target.value)}
+              />
+              <Button
+                type="primary"
+                size="small"
+                style={{ marginTop: 4 }}
+                onClick={() => submitReply(c.id)}
+              >
+                Send Reply
+              </Button>
+            </div>
+          )}
+
+          {/* CHILDREN */}
+          {c.replies?.length > 0 && (
+            <div style={{ marginTop: 12, marginLeft: 40 }}>
+              {c.replies.map((r) => renderComment(r))}
+            </div>
+          )}
+        </div>
+      </Space>
+    </Card>
+  );
 
   return (
     <Layout>
       <Layout className="mt-16">
-        <Content
-          style={{
-            margin: 20,
-            backgroundColor: "white",
-            padding: 20,
-            position: "relative",
-          }}
-        >
-          {/* ================= VIDEO PLAYER ================= */}
+        <Content style={{ margin: 20, background: "white", padding: 20 }}>
+          {/* VIDEO */}
           <div className="relative h-[70vh]">
             <video
               ref={videoRef}
               src={streamUrl}
               controls
+              onLoadedMetadata={handleLoaded}
               onTimeUpdate={handleTimeUpdate}
               onSeeked={handleSeeked}
               style={{
@@ -153,30 +275,24 @@ export default function Lecture() {
               }}
             />
 
-            {/* ================= VIDEO QUIZ POPUP ================= */}
+            {/* QUIZ POPUP */}
             {isOpenQuiz && currentQuiz && (
-              <div
-                className="absolute inset-0 bg-black/60 flex justify-center items-center z-10"
-                style={{ borderRadius: 8, backdropFilter: "blur(4px)" }}
-              >
-                <div className="bg-white rounded-2xl shadow-2xl p-8 w-[85%] max-w-3xl text-center">
-                  <h2 className="text-base font-bold mb-6">{`Question: ${currentQuiz.question}`}</h2>
+              <div className="absolute inset-0 bg-black/60 flex justify-center items-center z-10">
+                <div className="bg-white p-8 rounded-xl w-[80%] max-w-2xl">
+                  <h2 className="font-bold mb-6">{currentQuiz.question}</h2>
 
-                  <div className="grid grid-cols-2 gap-4 text-left">
-                    {currentQuiz.options.map((option, index) => (
+                  <div className="grid grid-cols-2 gap-4">
+                    {currentQuiz.options.map((op, i) => (
                       <div
-                        key={option.id}
-                        onClick={() => setSelectedAnswer(option)}
-                        className={`flex items-center gap-3 cursor-pointer px-4 py-3 border rounded-lg transition-all ${
-                          selectedAnswer?.id === option.id
+                        key={op.id}
+                        onClick={() => setSelectedAnswer(op)}
+                        className={`cursor-pointer px-4 py-3 rounded-lg border ${
+                          selectedAnswer?.id === op.id
                             ? "border-blue-500 bg-blue-50"
-                            : "border-gray-200 hover:bg-gray-50"
+                            : "border-gray-300"
                         }`}
                       >
-                        <span className="font-semibold text-blue-600">
-                          {String.fromCharCode(65 + index)}.
-                        </span>
-                        <span className="font-medium">{option.text}</span>
+                        <span>{String.fromCharCode(65 + i)}.</span> {op.text}
                       </div>
                     ))}
                   </div>
@@ -185,20 +301,17 @@ export default function Lecture() {
                     <Button
                       onClick={() => {
                         setIsOpenQuiz(false);
-                        setSelectedAnswer(null);
-                        setCurrentQuiz(null);
-                        handleContinueVideo();
+                        continueVideo();
                       }}
                     >
-                      Bỏ qua
+                      Skip
                     </Button>
-
                     <Button
                       type="primary"
                       disabled={!selectedAnswer}
-                      onClick={handleSubmitVideoQuiz}
+                      onClick={submitQuiz}
                     >
-                      Xác nhận
+                      Confirm
                     </Button>
                   </div>
                 </div>
@@ -206,28 +319,54 @@ export default function Lecture() {
             )}
           </div>
 
-          {/* ================= VIDEO TITLE ================= */}
-          <div className="mt-5 flex items-center justify-between">
-            <Title level={3}>{lecture.lecture_title}</Title>
+          {/* TITLE */}
+          <Title level={3} className="mt-5">
+            {lecture.lecture_title}
+          </Title>
+          <Button
+            type="primary"
+            style={{ marginBottom: 20 }}
+            onClick={() => navigate(`/forum?courseId=${courseId}`)}
+          >
+            💬 Discussion
+          </Button>
+
+          {/* === COMMENT SECTION === */}
+          <div className="mt-10">
+            <Title level={4}>Comments</Title>
+
+            {isEnrolled ? (
+              <Card style={{ marginBottom: 20 }}>
+                <TextArea
+                  rows={3}
+                  placeholder="Write a comment..."
+                  value={commentInput}
+                  onChange={(e) => setCommentInput(e.target.value)}
+                />
+                <Button
+                  type="primary"
+                  style={{ marginTop: 10 }}
+                  onClick={submitComment}
+                >
+                  Post Comment
+                </Button>
+              </Card>
+            ) : (
+              <Card>You must enroll to comment.</Card>
+            )}
+
+            {/* COMMENTS */}
+            <CommentList comments={comments} isEnrolled={isEnrolled} />
           </div>
         </Content>
 
-        {/* ================= SIDEBAR ================= */}
-        <Sider
-          width={420}
-          style={{
-            background: "white",
-            paddingTop: 24,
-            marginTop: 20,
-            marginBottom: 20,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{ height: "calc(100vh - 120px)", overflow: "auto" }}
-            className="px-4"
-          >
-            <LectureDetailSectionList courseId={courseId!} />
+        {/* SIDEBAR */}
+        <Sider width={420} style={{ background: "white", paddingTop: 24 }}>
+          <div style={{ height: "calc(100vh - 120px)", overflow: "auto" }}>
+            <LectureDetailSectionList
+              isEnrolled={isEnrolled}
+              courseId={courseId!}
+            />
           </div>
         </Sider>
       </Layout>

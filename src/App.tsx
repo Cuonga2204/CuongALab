@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminLayout from "src/layouts/AdminLayout";
 import TeacherLayout from "src/layouts/TeacherLayout/TeacherLayout";
 import UserLayout from "src/layouts/UserLayout";
+import CoursePricingScreen from "src/pages/admin/screens/CoursePricingScreen/CoursePricingScreen";
 import CoursesScreen from "src/pages/admin/screens/CourseScreen";
 import DashboardScreen from "src/pages/admin/screens/DashboardScreen/DashboardScreen";
+import PaymentsScreen from "src/pages/admin/screens/PaymentsScreen";
 import UsersScreen from "src/pages/admin/screens/UserScreen";
 import Login from "src/pages/other/auth/Screens/LoginScreen";
 import Signup from "src/pages/other/auth/Screens/SignupScreen/SignUpScreen";
@@ -12,6 +14,8 @@ import Cart from "src/pages/user/Cart/CartScreen";
 import CourseDetail from "src/pages/user/CourseDetail/screens/CourseDetailScreen";
 import Courses from "src/pages/user/Courses";
 import FavoriteCourse from "src/pages/user/FavoriteCourses/screens/FavoriteCourse";
+import ForumScreen from "src/pages/user/Forum/screens/ForumScreen";
+import ForumTopicDetailScreen from "src/pages/user/Forum/screens/ForumTopicDetailScreen";
 import LandingPage from "src/pages/user/LandingPage";
 import Lecture from "src/pages/user/Lecture/screens";
 import MyCourses from "src/pages/user/MyCourses/UserCoursesScreen/UserCoursesScreen";
@@ -35,11 +39,18 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/my-course" element={<MyCourses />} />
           <Route path="/favorite-course" element={<FavoriteCourse />} />
+          <Route path="/forum" element={<ForumScreen />} />
+          <Route
+            path="/forum/topic/:topicId"
+            element={<ForumTopicDetailScreen />}
+          />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardScreen />} />
           <Route path="users" element={<UsersScreen />} />
           <Route path="courses" element={<CoursesScreen />} />
+          <Route path="payments" element={<PaymentsScreen />} />
+          <Route path="course-pricing" element={<CoursePricingScreen />} />
         </Route>
         <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />

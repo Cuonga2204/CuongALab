@@ -3,5 +3,5 @@ export enum CartEndpointsEnum {
   ADD_TO_CART = "/cart/add",
   REMOVE_FROM_CART = "/cart/remove",
   CLEAR_CART = "/cart/clear/:userId",
-  PAYMENT_CART = "/payment/create",
+  PAYMENT_CART = "/payment-cart/create",
 }

@@ -23,6 +23,7 @@ import {
   useGetFavoritesByUser,
   useToggleFavorite,
 } from "src/pages/user/FavoriteCourses/hooks/useFavoriteCourse.hooks";
+import dayjs from "dayjs";
 
 interface CourseItemProps {
   course: Course;
@@ -111,7 +112,8 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
           <div className="absolute w-[45px] bottom-[30px] right-0">
             <img src={IMAGES.badge} alt="badge" />
             <div className="text-white absolute top-1/2 left-1/2 text-xs -translate-y-1/2 -translate-x-1/2 text-center leading-tight">
-              Giảm <br /> 50%
+              Giảm <br />
+              {course.discount_percent}%
             </div>
           </div>
 
@@ -155,6 +157,21 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
           <UserAddOutlined /> Giảng viên: {course.name_teacher}
         </p>
       </div>
+      {/* DISCOUNT TAG */}
+      {course.is_discount_active && (
+        <div className="absolute top-2 left-2 bg-red-500 px-2 py-1 rounded text-white text-xs font-semibold shadow">
+          {course.discount_tag}
+        </div>
+      )}
+
+      {/* COUNTDOWN */}
+      {course.sale_end && (
+        <div className="absolute top-10 left-2 bg-black/70 px-2 py-1 rounded text-white text-xs">
+          {dayjs(course.sale_end).diff(dayjs(), "day") > 0
+            ? `Sale Còn ${dayjs(course.sale_end).diff(dayjs(), "day")} ngày`
+            : "Hết hạn"}
+        </div>
+      )}
 
       {!isUserCourse && (
         <>
@@ -163,7 +180,9 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
               <p className="text-lg font-bold text-red-500">
                 {course.price_current.toLocaleString()}₫
               </p>
-              <p className="text-gray-400 line-through text-lg">1.000.000₫</p>
+              <p className="text-gray-400 line-through text-lg">
+                {course.price_old}
+              </p>
             </div>
           </div>
 
