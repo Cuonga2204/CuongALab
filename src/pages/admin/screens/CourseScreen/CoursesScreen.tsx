@@ -33,7 +33,6 @@ import { Loader } from "src/components/commons/Loader/Loader";
 import { DisplayLoadApi } from "src/components/commons/DisplayLoadApi/DisplayLoadApi";
 
 import { getImageSrc } from "src/helpers/get-img-src.helpers";
-import { getPrice } from "src/helpers/getPrice.helper";
 import { useAuthStore } from "src/store/authStore";
 import { ROLE_USER } from "src/constants/auth.constants";
 import { PAGE_LIMIT_DEFAULT } from "src/constants/common.constants";
@@ -111,7 +110,6 @@ export default function CoursesScreen() {
       title: "ID",
       dataIndex: "id",
       key: "id",
-      width: 200,
       ellipsis: true,
     },
     {
@@ -136,12 +134,6 @@ export default function CoursesScreen() {
       dataIndex: "category",
       key: "category",
       render: (category) => <Tag color="blue">{category}</Tag>,
-    },
-    {
-      title: "Price",
-      dataIndex: "price_current",
-      key: "price_current",
-      render: (price) => getPrice(price),
     },
     {
       title: "Actions",

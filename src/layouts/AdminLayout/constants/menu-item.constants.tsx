@@ -4,6 +4,8 @@ import {
   BookOutlined,
   MoneyCollectOutlined,
   PercentageOutlined,
+  DatabaseOutlined,
+  ShoppingOutlined,
 } from "@ant-design/icons";
 
 export const ADMIN_MENU_ITEMS = [
@@ -31,5 +33,15 @@ export const ADMIN_MENU_ITEMS = [
     key: "course-pricing",
     icon: <PercentageOutlined />,
     label: "Course Pricing",
+  },
+  {
+    key: "quiz-bank",
+    icon: <DatabaseOutlined />,
+    label: "Quiz Bank",
+  },
+  {
+    key: "user-courses",
+    icon: <ShoppingOutlined />,
+    label: "User Course Management",
   },
 ];

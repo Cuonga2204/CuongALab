@@ -7,6 +7,8 @@ import CoursePricingScreen from "src/pages/admin/screens/CoursePricingScreen/Cou
 import CoursesScreen from "src/pages/admin/screens/CourseScreen";
 import DashboardScreen from "src/pages/admin/screens/DashboardScreen/DashboardScreen";
 import PaymentsScreen from "src/pages/admin/screens/PaymentsScreen";
+import QuizBankScreen from "src/pages/admin/screens/QuizBankScreen/QuizBankScreen";
+import UserCourseScreen from "src/pages/admin/screens/UserCourseScreen/UserCourseScreen";
 import UsersScreen from "src/pages/admin/screens/UserScreen";
 import Login from "src/pages/other/auth/Screens/LoginScreen";
 import Signup from "src/pages/other/auth/Screens/SignupScreen/SignUpScreen";
@@ -51,6 +53,8 @@ function App() {
           <Route path="courses" element={<CoursesScreen />} />
           <Route path="payments" element={<PaymentsScreen />} />
           <Route path="course-pricing" element={<CoursePricingScreen />} />
+          <Route path="quiz-bank" element={<QuizBankScreen />} />
+          <Route path="user-courses" element={<UserCourseScreen />} />
         </Route>
         <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />

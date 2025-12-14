@@ -6,6 +6,7 @@ import {
   useDeleteQuiz,
   useGetQuizBySection,
 } from "src/pages/admin/hooks/course/useSectionQuiz.hooks";
+
 import SectionQuizDetailModal from "./SectionQuizDetailModal";
 import type { SectionQuiz } from "src/pages/admin/types/section-quiz.types";
 
@@ -35,18 +36,16 @@ export default function SectionQuizManager({
     setEditingQuiz(quiz);
     setModalOpen(true);
   };
+
   const handleDeleteQuiz = (id: string) => {
     Modal.confirm({
       title: "Delete this quiz?",
-      onOk: () => {
-        deleteMutation.mutate(id);
-      },
+      onOk: () => deleteMutation.mutate(id),
     });
   };
 
   useEffect(() => {
     if (!editingQuiz) return;
-
     const updated = quizzes.find((q) => q.id === editingQuiz.id);
     if (updated) setEditingQuiz(updated);
   }, [editingQuiz, quizzes]);
@@ -55,6 +54,7 @@ export default function SectionQuizManager({
     <Card style={{ marginTop: 12 }}>
       <div className="flex justify-between items-center mb-3">
         <Text strong>Section Quiz</Text>
+
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -82,28 +82,26 @@ export default function SectionQuizManager({
           <div className="flex justify-between">
             <strong>{quiz.title}</strong>
 
-            {
-              <Space>
-                <Button
-                  icon={<EditOutlined />}
-                  type="text"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openEditModal(quiz);
-                  }}
-                />
+            <Space>
+              <Button
+                icon={<EditOutlined />}
+                type="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEditModal(quiz);
+                }}
+              />
 
-                <Button
-                  danger
-                  icon={<DeleteOutlined />}
-                  type="text"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteQuiz(quiz.id);
-                  }}
-                />
-              </Space>
-            }
+              <Button
+                danger
+                icon={<DeleteOutlined />}
+                type="text"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteQuiz(quiz.id);
+                }}
+              />
+            </Space>
           </div>
         </Card>
       ))}

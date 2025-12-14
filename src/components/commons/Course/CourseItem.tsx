@@ -24,6 +24,7 @@ import {
   useToggleFavorite,
 } from "src/pages/user/FavoriteCourses/hooks/useFavoriteCourse.hooks";
 import dayjs from "dayjs";
+import { getPrice } from "src/helpers/getPrice.helper";
 
 interface CourseItemProps {
   course: Course;
@@ -178,10 +179,10 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
           <div className="flex justify-between items-center mt-4">
             <div className="flex gap-5">
               <p className="text-lg font-bold text-red-500">
-                {course.price_current.toLocaleString()}₫
+                {getPrice(course.price_current)}
               </p>
               <p className="text-gray-400 line-through text-lg">
-                {course.price_old}
+                {getPrice(course.price_old)}
               </p>
             </div>
           </div>

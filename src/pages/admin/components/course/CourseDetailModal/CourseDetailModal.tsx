@@ -1,4 +1,4 @@
-import { Modal, Form, Input, Select, InputNumber, Row, Col } from "antd";
+import { Modal, Form, Input, Select, Row, Col } from "antd";
 import { useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -172,28 +172,6 @@ export default function CourseDetailModal({
                     size="large"
                     placeholder="Select a category"
                     options={COURSE_CATEGORIES_OPTIONS}
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
-            <Form.Item
-              label="Current Price"
-              validateStatus={errors.price_current ? "error" : ""}
-              help={errors.price_current?.message}
-            >
-              <Controller
-                name="price_current"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    readOnly={isViewMode}
-                    size="large"
-                    min={0}
-                    style={{ width: "100%" }}
                   />
                 )}
               />

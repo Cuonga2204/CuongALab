@@ -75,7 +75,6 @@ export default function PricingModal({
       setValue("sale_price", sale);
     }
   }, [basePrice, discount, setValue]);
-  console.log(`course`, course);
   // Convert Dayjs → string before submit
   const submitForm = (data: UpdatePricingPayload) => {
     updateMutation.mutate(

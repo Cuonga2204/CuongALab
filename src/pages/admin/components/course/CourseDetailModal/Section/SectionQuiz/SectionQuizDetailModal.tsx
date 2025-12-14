@@ -7,16 +7,29 @@ import {
   List,
   Space,
   Tag,
+  Card,
 } from "antd";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+} from "@ant-design/icons";
 
 import {
   useCreateQuiz,
   useUpdateQuiz,
   useDeleteQuizQuestion,
 } from "src/pages/admin/hooks/course/useSectionQuiz.hooks";
+
+import {
+  useImportBankToQuiz,
+  useGetAllQuestionBanks,
+} from "src/pages/admin/hooks/questionbank/useQuestionBank.hooks";
+
+import { QuestionBankApi } from "src/pages/admin/api/question-bank.api";
 
 import QuestionModal from "./QuestionModal";
 
@@ -25,6 +38,8 @@ import type {
   CreateQuizPayload,
   SectionQuizQuestion,
 } from "src/pages/admin/types/section-quiz.types";
+
+import type { QuestionBank } from "src/pages/admin/types/question-bank.types";
 
 interface Props {
   open: boolean;
@@ -47,6 +62,15 @@ export default function SectionQuizDetailModal({
   const updateQuizMutation = useUpdateQuiz();
   const deleteQuestionMutation = useDeleteQuizQuestion();
 
+  // IMPORT FROM BANK
+  const importMutation = useImportBankToQuiz();
+  const { data: banks = [] } = useGetAllQuestionBanks();
+
+  // For modal import
+  const [bankModalOpen, setBankModalOpen] = useState(false);
+  const [searchId, setSearchId] = useState("");
+  const [previewBank, setPreviewBank] = useState<QuestionBank | null>(null);
+
   const [questionModal, setQuestionModal] = useState<{
     open: boolean;
     editing?: SectionQuizQuestion | null;
@@ -59,6 +83,7 @@ export default function SectionQuizDetailModal({
     formState: { errors },
   } = useForm<CreateQuizPayload>();
 
+  // Load quiz data into form
   useEffect(() => {
     if (quiz) {
       reset({
@@ -75,24 +100,46 @@ export default function SectionQuizDetailModal({
         passing_percentage: 80,
       });
     }
-  }, [courseId, quiz, reset, sectionId]);
+  }, [quiz, reset, sectionId, courseId]);
 
+  // Create / Update Quiz
   const submit = (data: CreateQuizPayload) => {
     if (quiz) {
       updateQuizMutation.mutate(
         { id: quiz.id, data },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        }
+        { onSuccess: () => onClose() }
       );
     } else {
       createQuizMutation.mutate(data, {
-        onSuccess: () => {
-          onClose();
-        },
+        onSuccess: () => onClose(),
       });
+    }
+  };
+
+  // IMPORT FORM
+  const handleImport = (formId: string) => {
+    if (!quiz?.id) return;
+
+    importMutation.mutate(
+      { quizId: quiz.id, formId },
+      {
+        onSuccess: () => {
+          refetch();
+          setBankModalOpen(false);
+          setPreviewBank(null);
+          setSearchId("");
+        },
+      }
+    );
+  };
+
+  // Fetch bank detail by ID
+  const fetchBankById = async (id: string) => {
+    try {
+      const res = await QuestionBankApi.getDetail(id);
+      setPreviewBank(res);
+    } catch {
+      setPreviewBank(null);
     }
   };
 
@@ -135,13 +182,13 @@ export default function SectionQuizDetailModal({
         </Form.Item>
       </Form>
 
-      {/* QUESTIONS */}
+      {/* ================= QUESTIONS LIST ================= */}
       {quiz && (
         <>
           <div className="flex justify-between items-center mt-5 mb-3">
             <strong>Questions</strong>
 
-            {
+            <Space>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -149,7 +196,28 @@ export default function SectionQuizDetailModal({
               >
                 Add Question
               </Button>
-            }
+
+              <Button onClick={() => setBankModalOpen(true)}>
+                Import From Bank
+              </Button>
+
+              <Button
+                danger
+                onClick={() => {
+                  Modal.confirm({
+                    title: "Clear all questions?",
+                    onOk: () =>
+                      quiz.questions.forEach((q) =>
+                        deleteQuestionMutation.mutate(q.id, {
+                          onSuccess: refetch,
+                        })
+                      ),
+                  });
+                }}
+              >
+                Clear All
+              </Button>
+            </Space>
           </div>
 
           <List
@@ -186,7 +254,7 @@ export default function SectionQuizDetailModal({
 
                   <div className="grid grid-cols-2 gap-y-1">
                     {q.options.map((o, i) => {
-                      const label = String.fromCharCode(65 + i); // A, B, C, D
+                      const label = String.fromCharCode(65 + i); // A, B, C ...
 
                       return (
                         <div key={o.id}>
@@ -204,16 +272,124 @@ export default function SectionQuizDetailModal({
         </>
       )}
 
-      {/* Question Modal */}
-      {questionModal.open && (
+      {/* ================= QUESTION MODAL ================= */}
+      {questionModal.open && quiz && (
         <QuestionModal
           refetch={refetch}
           open={questionModal.open}
           onClose={() => setQuestionModal({ open: false })}
-          quizId={quiz!.id}
+          quizId={quiz.id}
           editing={questionModal.editing}
         />
       )}
+
+      {/* ===========================================================
+          IMPORT QUESTION BANK MODAL
+      ============================================================ */}
+      <Modal
+        open={bankModalOpen}
+        title="Import Question Bank"
+        onCancel={() => {
+          setBankModalOpen(false);
+          setSearchId("");
+          setPreviewBank(null);
+        }}
+        footer={null}
+        width={750}
+      >
+        {/* ENTER ID */}
+        <Form layout="vertical">
+          <Form.Item label="Enter Question Bank ID">
+            <Input.Search
+              placeholder="Paste Question Bank ID"
+              enterButton="Load"
+              value={searchId}
+              onChange={(e) => setSearchId(e.target.value)}
+              onSearch={(value) => fetchBankById(value.trim())}
+            />
+          </Form.Item>
+        </Form>
+
+        {/* PREVIEW FROM ID */}
+        {previewBank && (
+          <Card style={{ marginTop: 12, padding: 12 }}>
+            <h3>{previewBank.title}</h3>
+            <p style={{ marginTop: -4, color: "#666" }}>
+              {previewBank.questions.length} questions
+            </p>
+
+            {/* QUESTIONS */}
+            <div
+              style={{ maxHeight: 250, overflowY: "auto", paddingRight: 10 }}
+            >
+              {previewBank.questions.map((q, idx) => (
+                <Card
+                  key={idx}
+                  size="small"
+                  style={{
+                    background: "#fafafa",
+                    marginBottom: 10,
+                    borderRadius: 6,
+                  }}
+                >
+                  <strong>
+                    {idx + 1}. {q.question}
+                  </strong>
+                  <div style={{ marginTop: 8, marginLeft: 10 }}>
+                    {q.options.map((opt, i) => (
+                      <div key={i}>
+                        {String.fromCharCode(65 + i)}: {opt.text}{" "}
+                        {opt.is_correct && <Tag color="green">Correct</Tag>}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            <Button
+              type="primary"
+              block
+              style={{ marginTop: 15 }}
+              onClick={() => handleImport(previewBank.id)}
+            >
+              Import This Form
+            </Button>
+          </Card>
+        )}
+
+        {/* LIST ALL BANKS */}
+        <h4 style={{ marginTop: 20 }}>Or select from list:</h4>
+
+        <List
+          bordered
+          dataSource={banks}
+          renderItem={(bank: QuestionBank) => (
+            <List.Item
+              style={{ display: "flex", justifyContent: "space-between" }}
+            >
+              <div>
+                <strong>{bank.title}</strong>
+                <span style={{ marginLeft: 8, color: "#666" }}>
+                  ({bank.questions.length} questions)
+                </span>
+              </div>
+
+              {/* 👁 EYE ICON FOR PREVIEW */}
+              <Button
+                type="text"
+                icon={<EyeOutlined />}
+                onClick={() => setPreviewBank(bank)}
+              />
+
+              {/* IMPORT WITHOUT PREVIEW (optional) */}
+              <Button type="link" danger onClick={() => handleImport(bank.id)}>
+                Import
+              </Button>
+            </List.Item>
+          )}
+        />
+      </Modal>
     </Modal>
   );
 }
