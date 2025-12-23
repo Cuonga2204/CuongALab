@@ -5,6 +5,7 @@ export interface QuizOption {
 }
 
 export interface SectionQuizQuestion {
+  form_question_id?: string;
   id: string;
   section_quiz_id: string;
   question: string;
@@ -63,6 +64,7 @@ export interface SubmitQuizPayload {
     question_id: string;
     selected_option_ids: string[];
   }[];
+  questions: SectionQuizQuestion[];
 }
 export interface SectionQuizResult {
   id: string;

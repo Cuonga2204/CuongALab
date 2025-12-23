@@ -35,40 +35,34 @@ export default function UserSectionQuizList({
     setCurrentQuiz(quiz);
   };
 
+  /** ✅ LẤY KẾT QUẢ TỐT NHẤT */
+  const getBestResult = (
+    results: SectionQuizResult[],
+    quizId: string
+  ): SectionQuizResult | undefined => {
+    const list = results.filter((r) => r.section_quiz_id === quizId);
+    if (!list.length) return undefined;
+    return list.reduce((best, cur) =>
+      cur.percentage > best.percentage ? cur : best
+    );
+  };
+
   return (
     <>
       {quizzes.map((q, index) => {
-        const result = quizResult.find((rs) => rs.section_quiz_id === q.id);
+        const bestResult = getBestResult(quizResult, q.id);
 
         const isFirstQuiz = index === 0;
-
         const prevQuiz = quizzes[index - 1];
+        const prevBest = prevQuiz
+          ? getBestResult(quizResult, prevQuiz.id)
+          : null;
 
-        const passedPrev =
-          isFirstQuiz ||
-          (prevQuiz &&
-            quizResult.some(
-              (r: SectionQuizResult) =>
-                r.section_quiz_id === prevQuiz.id && r.is_passed
-            ));
-
-        const canDoQuiz = passedPrev;
-
-        let statusNode = <Tag color="blue">Not Taken</Tag>;
-
-        if (result) {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          statusNode = result.is_passed ? (
-            <Tag color="green">Passed</Tag>
-          ) : (
-            <Tag color="red">Failed</Tag>
-          );
-        }
+        const canDoQuiz = isFirstQuiz || prevBest?.is_passed;
 
         return (
-          <div className="mt-4">
+          <div className="mt-4" key={q.id}>
             <Tooltip
-              key={q.id}
               title={
                 !canDoQuiz
                   ? "Bạn cần hoàn thành quiz trước đó trước khi làm quiz này"
@@ -80,22 +74,20 @@ export default function UserSectionQuizList({
                   margin: 8,
                   cursor: canDoQuiz ? "pointer" : "not-allowed",
                   opacity: canDoQuiz ? 1 : 0.5,
-                  borderColor: result?.is_passed ? "#52c41a" : undefined,
-                  padding: 0,
+                  borderColor: bestResult?.is_passed ? "#52c41a" : undefined,
                 }}
                 bodyStyle={{ padding: "10px" }}
-                onClick={() => openQuiz(q, canDoQuiz)}
+                onClick={() => openQuiz(q, !!canDoQuiz)}
               >
                 <Space className="flex justify-between w-full">
                   <strong>{`${index + 1}. ${q.title}`}</strong>
 
-                  {/* HIỂN THỊ PROGRESS THAY TAG */}
-                  {result ? (
+                  {bestResult ? (
                     <Progress
                       type="circle"
-                      percent={result.percentage}
+                      percent={bestResult.percentage}
                       width={30}
-                      strokeColor={result.is_passed ? "#52c41a" : "#ff4d4f"}
+                      strokeColor={bestResult.is_passed ? "#52c41a" : "#ff4d4f"}
                     />
                   ) : (
                     <Tag color="blue">Not Taken</Tag>
@@ -112,8 +104,8 @@ export default function UserSectionQuizList({
           quiz={currentQuiz}
           courseId={courseId}
           sectionId={sectionId}
-          onClose={() => setCurrentQuiz(null)}
           userId={String(user?.id)}
+          onClose={() => setCurrentQuiz(null)}
         />
       )}
     </>

@@ -5,9 +5,8 @@ export interface BankOption {
 }
 
 export interface BankQuestion {
-  id: string;
+  id?: string;
   question: string;
-
   options: BankOption[];
 }
 
@@ -37,6 +36,7 @@ export interface UpdateQuestionBankPayload {
   title?: string;
   description?: string;
   course_id?: string | null;
+  questions?: BankQuestion[]; // 👈 THÊM DÒNG NÀY
 }
 
 export interface AddBankQuestionPayload {
