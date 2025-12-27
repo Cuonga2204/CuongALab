@@ -15,7 +15,6 @@ export default function SectionList({
   isEnrolled,
 }: SectionListProps) {
   const { data: sections = [], isLoading } = useGetSectionsByCourse(courseId);
-
   if (isLoading)
     return (
       <div className="flex justify-center py-10">

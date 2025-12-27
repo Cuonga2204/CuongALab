@@ -5,9 +5,12 @@ import {
   MenuUnfoldOutlined,
   SearchOutlined,
   SortAscendingOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+
 import { TEACHER_MENU_ITEMS } from "src/layouts/TeacherLayout/constants/menu-item.constants";
+import { useLogout } from "src/pages/other/auth/hooks/useLogout.hook";
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -30,26 +33,33 @@ export default function TeacherLayout({
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useLogout();
 
   const currentPage = location.pathname.split("/")[2] || "dashboard";
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* SIDEBAR */}
+      {/* ================= SIDEBAR ================= */}
       <Sider
         trigger={null}
         collapsible
         collapsed={collapsed}
-        style={{ background: "#fff", borderRight: "1px solid #f0f0f0" }}
+        style={{
+          background: "#fff",
+          borderRight: "1px solid #f0f0f0",
+          display: "flex",
+          flexDirection: "column", // ⭐ QUAN TRỌNG
+        }}
       >
+        {/* ===== LOGO + COLLAPSE ===== */}
         <Space
           direction="vertical"
+          align="center"
           style={{
             width: "100%",
             padding: collapsed ? "16px 8px" : "24px 16px",
             borderBottom: "1px solid #f0f0f0",
           }}
-          align="center"
         >
           {!collapsed && (
             <Title
@@ -59,12 +69,12 @@ export default function TeacherLayout({
                 background: "linear-gradient(135deg, #1890ff 0%, #13c2c2 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
               }}
             >
               Teacher
             </Title>
           )}
+
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -73,6 +83,7 @@ export default function TeacherLayout({
           />
         </Space>
 
+        {/* ===== MENU (chiếm hết chiều cao còn lại) ===== */}
         <Menu
           mode="inline"
           selectedKeys={[currentPage]}
@@ -80,11 +91,36 @@ export default function TeacherLayout({
           onClick={({ key }) =>
             navigate(`/teacher/${key === "dashboard" ? "" : key}`)
           }
-          style={{ borderRight: 0, marginTop: 8 }}
+          style={{
+            borderRight: 0,
+            marginTop: 8,
+            flex: 1, // ⭐ đẩy logout xuống đáy
+          }}
         />
+
+        {/* ===== LOGOUT (DƯỚI CÙNG SIDEBAR) ===== */}
+        <div
+          style={{
+            padding: "16px",
+            borderTop: "1px solid #f0f0f0",
+          }}
+        >
+          <Button
+            danger
+            type="text"
+            icon={<LogoutOutlined />}
+            block={!collapsed}
+            style={{
+              justifyContent: collapsed ? "center" : "flex-start",
+            }}
+            onClick={logout}
+          >
+            {!collapsed && "Logout"}
+          </Button>
+        </div>
       </Sider>
 
-      {/* MAIN CONTENT */}
+      {/* ================= MAIN CONTENT ================= */}
       <Layout>
         {(searchTerm !== undefined || sortBy !== undefined) && (
           <Header

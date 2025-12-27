@@ -2,9 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 import type {
-  PricingRow,
   CoursePricing,
   UpdatePricingPayload,
+  PricingPaginationResponse,
 } from "src/pages/admin/types/pricing.types";
 
 import {
@@ -16,13 +16,17 @@ import {
 /* ============================================
    GET ALL PRICING + COURSES
 ============================================ */
-export const useGetAllPricing = () =>
-  useQuery<PricingRow[]>({
-    queryKey: ["course-pricing"],
-    queryFn: getAllCoursePricing,
+interface UseGetAllPricingParams {
+  page: number;
+  limit: number;
+}
+
+export const useGetAllPricing = ({ page, limit }: UseGetAllPricingParams) =>
+  useQuery<PricingPaginationResponse>({
+    queryKey: ["course-pricing", page, limit], // ⭐ QUAN TRỌNG
+    queryFn: () => getAllCoursePricing({ page, limit }),
     staleTime: 5 * 60 * 1000,
   });
-
 /* ============================================
    UPDATE PRICING
 ============================================ */

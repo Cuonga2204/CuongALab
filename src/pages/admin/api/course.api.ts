@@ -22,6 +22,11 @@ export const getAllCourses = async (page = 1, limit = 10) => {
 
   return res.data.data;
 };
+/** == GET ALL COURSES NO PAGINATION === */
+export const getAllCoursesPublic = async () => {
+  const res = await axiosClient.get(CourseEndpointsEnum.GET_ALL_PUBLIC);
+  return res.data.data;
+};
 
 /** === GET COURSE DETAIL === */
 export const getCourseDetail = async (id: string) => {

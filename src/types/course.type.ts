@@ -1,4 +1,4 @@
-import type { COURSE_CATEGORIES } from "src/constants/course.constants";
+import type { Category } from "src/pages/admin/types/category.types";
 
 export interface Course {
   id: string;
@@ -21,5 +21,5 @@ export interface Course {
   total_lectures: number;
   total_video_duration: number;
   total_hours: number;
-  category: COURSE_CATEGORIES;
+  category: Category;
 }

@@ -46,7 +46,6 @@ export default function DashboardScreen() {
   const { data, isLoading } = useDashboardStats(from, to);
 
   const stats: RevenueStats | undefined = data;
-  console.log(`stats`, stats);
   return (
     <Space direction="vertical" size="large" style={{ width: "100%" }}>
       {/* TITLE */}

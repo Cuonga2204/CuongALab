@@ -1,132 +1,127 @@
-import { Modal, Form, Input, Select, InputNumber, Row, Col } from "antd";
-import { useForm, Controller } from "react-hook-form";
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Row,
+  Col,
+  TreeSelect,
+  Typography,
+} from "antd";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
 
-import type { Course } from "src/types/course.type";
-import { COURSE_CATEGORIES_OPTIONS } from "src/constants/course.constants";
 import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
+
 import {
   CourseCreateFormDataSchema,
   type CourseCreateFormData,
 } from "src/pages/admin/types/course.types";
-import {
-  useCreateCourse,
-  useGetAllCourses,
-} from "src/pages/admin/hooks/course/useCourse.hooks";
+
+import type { User } from "src/types/user.type";
+import type { CategoryTreeItem } from "src/pages/admin/types/category.types";
+
+import { useCreateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import { useGetTeachers } from "src/pages/admin/hooks/user/useUser.hooks";
-import type { User } from "src/types/auth.type";
-import { useAuthStore } from "src/store/authStore";
+import { useGetCategoryTree } from "src/pages/admin/hooks/category/useCategory.hooks";
+
 import { ROLE_USER } from "src/constants/auth.constants";
+import { useAuthStore } from "src/store/authStore";
+
+import { mapCategoryTreeToSelect } from "src/pages/admin/utils/mapCategoryTree";
+
+const { Text } = Typography;
 
 interface CreateCourseModalProps {
   open: boolean;
-  mode: "view" | "edit" | "create";
-  course: Course | undefined;
   onClose: () => void;
-  onSubmit: (data: CourseCreateFormData) => void;
 }
 
 export default function CreateCourseModal({
   open,
-  mode,
-  course,
   onClose,
 }: CreateCourseModalProps) {
+  /* ================= FORM ================= */
   const {
     control,
     handleSubmit,
-    formState: { errors, isValid },
     reset,
+    setValue,
+    formState: { errors, isValid },
   } = useForm<CourseCreateFormData>({
     resolver: zodResolver(CourseCreateFormDataSchema),
   });
 
-  const { refetch } = useGetAllCourses();
-
-  const { data: teachers, isLoading: loadingTeachers } = useGetTeachers();
+  /* ================= AUTH ================= */
   const { user } = useAuthStore();
   const isTeacher = user?.role === ROLE_USER.TEACHER;
 
-  const isViewMode = mode === "view";
-  const modalTitle =
-    mode === "view"
-      ? "Course Details"
-      : mode === "edit"
-      ? "Edit Course"
-      : "Add New Course";
+  /* ================= DATA ================= */
+  const createCourseMutation = useCreateCourse();
+  const { data: teachers = [], isLoading: loadingTeachers } = useGetTeachers();
 
+  const { data: categoryTree = [] } = useGetCategoryTree();
+
+  /* ================= ROOT CATEGORY ================= */
+  const [rootCategoryId, setRootCategoryId] = useState<string>("");
+
+  const selectedRoot: CategoryTreeItem | undefined = categoryTree.find(
+    (c) => c.id === rootCategoryId
+  );
+
+  /* ================= INIT ================= */
   useEffect(() => {
-    if (open && course) {
-      reset({
-        ...course,
-        teacher_id: isTeacher ? user.id : course.teacher_id,
-      });
-    } else if (open && !course) {
-      reset({
-        title: "",
-        avatar: undefined,
-        price_current: 0,
-        teacher_id: isTeacher ? user.id : "",
-        overview: "",
-        description: "",
-        category: COURSE_CATEGORIES_OPTIONS[0].value,
-      });
-    }
-  }, [open, course, reset, isTeacher, user]);
+    if (!open) return;
+
+    reset({
+      title: "",
+      avatar: undefined,
+      teacher_id: isTeacher ? user!.id : "",
+      category_id: "",
+      overview: "",
+      description: "",
+    });
+
+    setRootCategoryId("");
+  }, [open, reset, isTeacher, user]);
 
   const handleClose = () => {
     reset();
+    setRootCategoryId("");
     onClose();
   };
-  const createCourseMutation = useCreateCourse();
 
-  const onFormSubmit = (data: CourseCreateFormData) => {
+  /* ================= SUBMIT ================= */
+  const onSubmit = (data: CourseCreateFormData) => {
     createCourseMutation.mutate(data, {
-      onSuccess: () => {
-        handleClose();
-        refetch();
-      },
+      onSuccess: handleClose,
     });
   };
 
+  /* ================= RENDER ================= */
   return (
     <Modal
-      title={modalTitle}
+      title="Add New Course"
       open={open}
       onCancel={handleClose}
-      okText={isViewMode ? undefined : mode === "edit" ? "update" : "create"}
-      cancelText={isViewMode ? "Close" : "Cancel"}
-      onOk={handleSubmit(
-        (data) => {
-          console.log("VALID", data);
-          onFormSubmit(data);
-        },
-        (err) => {
-          console.log("INVALID FORM", err);
-        }
-      )}
-      width={900}
+      onOk={handleSubmit(onSubmit)}
+      okText="Create Course"
+      width={950}
       centered
-      okButtonProps={{
-        style: isViewMode ? { display: "none" } : {},
-        disabled: !isValid,
-      }}
+      okButtonProps={{ disabled: !isValid }}
     >
-      <Form id="course-form" layout="vertical" style={{ marginTop: 16 }}>
+      <Form layout="vertical" style={{ marginTop: 16 }}>
+        {/* ===== AVATAR ===== */}
         <Controller
           name="avatar"
           control={control}
           render={({ field }) => (
-            <ImageUploader
-              value={field.value}
-              onChange={field.onChange}
-              disabled={isViewMode}
-            />
+            <ImageUploader value={field.value} onChange={field.onChange} />
           )}
         />
 
-        {/* === Row 1: Title + Teacher === */}
+        {/* ===== TITLE + TEACHER ===== */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -137,9 +132,7 @@ export default function CreateCourseModal({
               <Controller
                 name="title"
                 control={control}
-                render={({ field }) => (
-                  <Input {...field} disabled={isViewMode} size="large" />
-                )}
+                render={({ field }) => <Input {...field} size="large" />}
               />
             </Form.Item>
           </Col>
@@ -157,18 +150,15 @@ export default function CreateCourseModal({
                   <Select
                     {...field}
                     size="large"
-                    disabled={isViewMode || isTeacher}
+                    disabled={isTeacher}
                     loading={loadingTeachers}
-                    placeholder={
-                      isTeacher ? "You are the teacher" : "Select a teacher"
-                    }
                     options={
                       isTeacher
-                        ? [{ label: user.name, value: user.id }]
-                        : teachers?.map((t: User) => ({
+                        ? [{ label: user?.name, value: user?.id }]
+                        : teachers.map((t: User) => ({
                             label: t.name,
                             value: t.id,
-                          })) || []
+                          }))
                     }
                   />
                 )}
@@ -177,54 +167,49 @@ export default function CreateCourseModal({
           </Col>
         </Row>
 
-        {/* === Row 2: Category + Price === */}
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Category"
-              validateStatus={errors.category ? "error" : ""}
-              help={errors.category?.message}
-            >
-              <Controller
-                name="category"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    disabled={isViewMode}
-                    size="large"
-                    placeholder="Select a category"
-                    options={COURSE_CATEGORIES_OPTIONS}
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
+        {/* ===== ROOT CATEGORY ID ===== */}
+        <Form.Item label="Root Category ID">
+          <Input
+            placeholder="Enter Level 1 category ID"
+            value={rootCategoryId}
+            onChange={(e) => {
+              setRootCategoryId(e.target.value.trim());
+              setValue("category_id", "");
+            }}
+          />
+        </Form.Item>
 
-          <Col span={12}>
-            <Form.Item
-              label="Current Price"
-              validateStatus={errors.price_current ? "error" : ""}
-              help={errors.price_current?.message}
-            >
-              <Controller
-                name="price_current"
-                control={control}
-                render={({ field }) => (
-                  <InputNumber
-                    {...field}
-                    disabled={isViewMode}
-                    size="large"
-                    min={0}
-                    style={{ width: "100%" }}
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {rootCategoryId && !selectedRoot && (
+          <Text type="danger">Root category not found</Text>
+        )}
 
-        {/* === Row 3: Overview + Description === */}
+        {/* ===== SUB CATEGORY TREE ===== */}
+        {selectedRoot && (
+          <Form.Item
+            label="Category"
+            validateStatus={errors.category_id ? "error" : ""}
+            help={errors.category_id?.message}
+          >
+            <Controller
+              name="category_id"
+              control={control}
+              render={({ field }) => (
+                <TreeSelect
+                  {...field}
+                  treeData={mapCategoryTreeToSelect([selectedRoot])}
+                  placeholder="Select sub category"
+                  treeDefaultExpandAll
+                  showSearch
+                  treeLine
+                  allowClear
+                  style={{ width: "100%" }}
+                />
+              )}
+            />
+          </Form.Item>
+        )}
+
+        {/* ===== OVERVIEW + DESCRIPTION ===== */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -235,14 +220,7 @@ export default function CreateCourseModal({
               <Controller
                 name="overview"
                 control={control}
-                render={({ field }) => (
-                  <Input.TextArea
-                    {...field}
-                    rows={3}
-                    disabled={isViewMode}
-                    size="large"
-                  />
-                )}
+                render={({ field }) => <Input.TextArea {...field} rows={3} />}
               />
             </Form.Item>
           </Col>
@@ -256,14 +234,7 @@ export default function CreateCourseModal({
               <Controller
                 name="description"
                 control={control}
-                render={({ field }) => (
-                  <Input.TextArea
-                    {...field}
-                    rows={3}
-                    disabled={isViewMode}
-                    size="large"
-                  />
-                )}
+                render={({ field }) => <Input.TextArea {...field} rows={3} />}
               />
             </Form.Item>
           </Col>

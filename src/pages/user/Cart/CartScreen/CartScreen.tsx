@@ -107,7 +107,7 @@ export default function CartScreen() {
 
                 <div className="text-right">
                   <p className="text-xl font-bold text-primary">
-                    ₫{course.price_current.toLocaleString()}
+                    ₫{course.price_current?.toLocaleString()}
                   </p>
                   <p className="line-through text-gray-400 text-sm">
                     ₫1.000.000
@@ -121,10 +121,10 @@ export default function CartScreen() {
           <div className="flex flex-col gap-3 bg-white shadow-md p-6 h-fit sticky top-20 border-blue-300 rounded-lg border-2">
             <h3 className="text-xl font-bold">Total:</h3>
             <p className="text-3xl font-bold text-primary">
-              ₫{totalPrice.toLocaleString()}
+              ₫{totalPrice?.toLocaleString()}
             </p>
             <p className="line-through text-gray-400 text-sm">
-              ₫{totalPrice.toLocaleString()}
+              ₫{totalPrice?.toLocaleString()}
             </p>
 
             <Flex vertical gap="small">

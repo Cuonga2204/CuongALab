@@ -1,20 +1,39 @@
-import { Modal, Form, Input, Select, Row, Col } from "antd";
-import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import {
+  Modal,
+  Form,
+  Input,
+  Select,
+  Row,
+  Col,
+  TreeSelect,
+  Typography,
+} from "antd";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { COURSE_CATEGORIES_OPTIONS } from "src/constants/course.constants";
+
 import ImageUploader from "src/pages/admin/components/common/ImageUploader/ImageUploader";
+import SectionManager from "./Section/SectionManager";
+
 import {
   CourseFormDataSchema,
   type CourseFormData,
 } from "src/pages/admin/types/course.types";
-import { useUpdateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
-import SectionManager from "./Section/SectionManager";
+
 import type { Course } from "src/types/course.type";
+import type { User } from "src/types/user.type";
+import type { CategoryTreeItem } from "src/pages/admin/types/category.types";
+
+import { useUpdateCourse } from "src/pages/admin/hooks/course/useCourse.hooks";
 import { useGetTeachers } from "src/pages/admin/hooks/user/useUser.hooks";
+import { useGetCategoryTree } from "src/pages/admin/hooks/category/useCategory.hooks";
+
 import { ROLE_USER } from "src/constants/auth.constants";
 import { useAuthStore } from "src/store/authStore";
-import type { User } from "src/types/user.type";
+import { mapCategoryTreeToSelect } from "src/pages/admin/utils/mapCategoryTree";
+import { findRootCategoryId } from "src/pages/admin/utils/findRootCategory";
+
+const { Text } = Typography;
 
 interface CourseDetailModalProps {
   open: boolean;
@@ -29,12 +48,15 @@ export default function CourseDetailModal({
   course,
   onClose,
 }: CourseDetailModalProps) {
-  // === react-hook-form ===
+  /* =========================================================
+     FORM
+  ========================================================= */
   const {
     control,
     handleSubmit,
-    formState: { errors },
     reset,
+    setValue,
+    formState: { errors },
   } = useForm<CourseFormData>({
     resolver: zodResolver(CourseFormDataSchema),
   });
@@ -42,40 +64,79 @@ export default function CourseDetailModal({
   const isViewMode = mode === "view";
   const modalTitle = isViewMode ? "Course Details" : "Edit Course";
 
-  const updateCourseMutation = useUpdateCourse();
-
-  const { data: teachers, isLoading: loadingTeachers } = useGetTeachers();
+  /* =========================================================
+     AUTH
+  ========================================================= */
   const { user } = useAuthStore();
   const isTeacher = user?.role === ROLE_USER.TEACHER;
 
-  useEffect(() => {
-    if (!open) return;
+  /* =========================================================
+     DATA
+  ========================================================= */
+  const updateCourseMutation = useUpdateCourse();
+  const { data: teachers = [], isLoading: loadingTeachers } = useGetTeachers();
 
-    if (course) {
-      reset({
-        ...course,
-        teacher_id: isTeacher ? user?.id : course.teacher_id,
+  const { data: categoryTree = [] } = useGetCategoryTree();
+
+  /* =========================================================
+     ROOT CATEGORY STATE
+  ========================================================= */
+  const [rootCategoryId, setRootCategoryId] = useState<string>("");
+
+  const selectedRoot: CategoryTreeItem | undefined = categoryTree.find(
+    (c) => c.id === rootCategoryId
+  );
+
+  /* =========================================================
+     INIT FORM
+  ========================================================= */
+  useEffect(() => {
+    if (!open || !course || !categoryTree.length) return;
+
+    reset(course);
+
+    const courseCategoryId = (course as Course).category?.id;
+    if (!courseCategoryId) return;
+
+    const rootId = findRootCategoryId(categoryTree, courseCategoryId);
+    if (!rootId) return;
+
+    // 1️⃣ set root trước
+    setRootCategoryId(rootId);
+
+    // 2️⃣ set lại category_id sau khi root tồn tại
+    setTimeout(() => {
+      setValue("category_id", courseCategoryId, {
+        shouldValidate: true,
+        shouldDirty: false,
       });
-    }
-  }, [open, course, reset, isTeacher, user]);
+    }, 0);
+  }, [open, course, categoryTree, reset, setValue]);
 
   const handleClose = () => {
     reset();
+    setRootCategoryId("");
     onClose();
   };
 
-  const onFormSubmit = (data: CourseFormData) => {
+  const onSubmit = (data: CourseFormData) => {
     if (!course) return;
-    updateCourseMutation.mutate({ id: course.id, data });
+    updateCourseMutation.mutate({
+      id: (course as Course).id,
+      data,
+    });
     handleClose();
   };
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
   return (
     <Modal
       title={modalTitle}
       open={open}
       onCancel={handleClose}
-      onOk={handleSubmit(onFormSubmit)}
+      onOk={handleSubmit(onSubmit)}
       okText={isViewMode ? undefined : "Update Course"}
       cancelText={isViewMode ? "Close" : "Cancel"}
       width={950}
@@ -84,9 +145,8 @@ export default function CourseDetailModal({
         style: isViewMode ? { display: "none" } : {},
       }}
     >
-      {/* === COURSE FORM === */}
       <Form layout="vertical" style={{ marginTop: 16 }}>
-        {/* === Avatar Upload === */}
+        {/* ================= AVATAR ================= */}
         <Controller
           name="avatar"
           control={control}
@@ -99,7 +159,7 @@ export default function CourseDetailModal({
           )}
         />
 
-        {/* === Row 1: Title + Teacher === */}
+        {/* ================= TITLE + TEACHER ================= */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -111,7 +171,7 @@ export default function CourseDetailModal({
                 name="title"
                 control={control}
                 render={({ field }) => (
-                  <Input {...field} readOnly={isViewMode} size="large" />
+                  <Input {...field} size="large" readOnly={isViewMode} />
                 )}
               />
             </Form.Item>
@@ -130,22 +190,16 @@ export default function CourseDetailModal({
                   <Select
                     {...field}
                     size="large"
-                    placeholder="Select a teacher"
                     disabled={isTeacher || isViewMode}
                     loading={loadingTeachers}
                     value={isTeacher ? user?.id : field.value}
                     options={
                       isTeacher
-                        ? [
-                            {
-                              label: user?.name,
-                              value: user?.id,
-                            },
-                          ]
-                        : teachers?.map((t: User) => ({
+                        ? [{ label: user?.name, value: user?.id }]
+                        : teachers.map((t: User) => ({
                             label: t.name,
                             value: t.id,
-                          })) || []
+                          }))
                     }
                   />
                 )}
@@ -154,32 +208,48 @@ export default function CourseDetailModal({
           </Col>
         </Row>
 
-        {/* === Row 2: Category + Price === */}
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Category"
-              validateStatus={errors.category ? "error" : ""}
-              help={errors.category?.message}
-            >
-              <Controller
-                name="category"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    {...field}
-                    open={isViewMode ? false : undefined}
-                    size="large"
-                    placeholder="Select a category"
-                    options={COURSE_CATEGORIES_OPTIONS}
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
+        {/* ================= ROOT CATEGORY ID ================= */}
+        <Form.Item label="Root Category ID">
+          <Input
+            placeholder="Enter Level 1 category ID (e.g. FE)"
+            value={rootCategoryId}
+            onChange={(e) => setRootCategoryId(e.target.value.trim())}
+            disabled={isViewMode}
+          />
+        </Form.Item>
 
-        {/* === Row 3: Overview + Description === */}
+        {rootCategoryId && !selectedRoot && (
+          <Text type="danger">Root category not found</Text>
+        )}
+
+        {/* ================= SUB CATEGORY TREE ================= */}
+        {selectedRoot && (
+          <Form.Item
+            label="Category"
+            validateStatus={errors.category_id ? "error" : ""}
+            help={errors.category_id?.message}
+          >
+            <Controller
+              name="category_id"
+              control={control}
+              render={({ field }) => (
+                <TreeSelect
+                  {...field}
+                  treeData={mapCategoryTreeToSelect([selectedRoot])}
+                  placeholder="Select sub category"
+                  treeDefaultExpandAll
+                  showSearch
+                  treeLine
+                  allowClear
+                  disabled={isViewMode}
+                  style={{ width: "100%" }}
+                />
+              )}
+            />
+          </Form.Item>
+        )}
+
+        {/* ================= OVERVIEW + DESCRIPTION ================= */}
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
@@ -191,12 +261,7 @@ export default function CourseDetailModal({
                 name="overview"
                 control={control}
                 render={({ field }) => (
-                  <Input.TextArea
-                    {...field}
-                    rows={3}
-                    readOnly={isViewMode}
-                    size="large"
-                  />
+                  <Input.TextArea {...field} rows={3} readOnly={isViewMode} />
                 )}
               />
             </Form.Item>
@@ -212,12 +277,7 @@ export default function CourseDetailModal({
                 name="description"
                 control={control}
                 render={({ field }) => (
-                  <Input.TextArea
-                    {...field}
-                    rows={3}
-                    readOnly={isViewMode}
-                    size="large"
-                  />
+                  <Input.TextArea {...field} rows={3} readOnly={isViewMode} />
                 )}
               />
             </Form.Item>
@@ -225,9 +285,12 @@ export default function CourseDetailModal({
         </Row>
       </Form>
 
-      {/* === SECTION & LECTURE MANAGER === */}
+      {/* ================= SECTION MANAGER ================= */}
       {course && (
-        <SectionManager isViewMode={isViewMode} courseId={course.id} />
+        <SectionManager
+          isViewMode={isViewMode}
+          courseId={(course as Course).id}
+        />
       )}
     </Modal>
   );

@@ -7,7 +7,6 @@ import {
   Typography,
   Modal,
   Avatar,
-  Tag,
   Input,
 } from "antd";
 import {
@@ -129,12 +128,7 @@ export default function CoursesScreen() {
         </Space>
       ),
     },
-    {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      render: (category) => <Tag color="blue">{category}</Tag>,
-    },
+
     {
       title: "Actions",
       key: "actions",
@@ -264,13 +258,7 @@ export default function CoursesScreen() {
       {/* MODALS */}
       {modalOpen &&
         (modalMode === "create" ? (
-          <CreateCourseModal
-            open={modalOpen}
-            mode="create"
-            course={selectedCourse}
-            onClose={handleClose}
-            onSubmit={() => {}}
-          />
+          <CreateCourseModal open={modalOpen} onClose={handleClose} />
         ) : (
           <CourseDetailModal
             open={modalOpen}

@@ -12,8 +12,9 @@ import {
   VideoCameraOutlined,
 } from "@ant-design/icons";
 import { USER_COURSE_STATUS } from "src/pages/user/MyCourses/constants/user-courses.constants";
-import { COURSE_CATEGORIES } from "src/constants/course.constants";
 import type { UserCourse } from "src/pages/user/MyCourses/types/user-courses.types";
+import { useGetCategoryTree } from "src/pages/admin/hooks/category/useCategory.hooks";
+import type { CategoryTreeItem } from "src/pages/admin/types/category.types";
 
 export default function UserCoursesScreen() {
   const { user } = useAuthStore();
@@ -25,11 +26,9 @@ export default function UserCoursesScreen() {
     isError,
   } = useGetCoursesByUser(user?.id || "");
 
-  const handleClick = (courseId: string, isEnrolled: boolean) => {
-    navigate(`/course/${courseId}`, { state: { isEnrolled } });
-  };
-
-  if (isLoading) return <Loader />;
+  const { data: categoryTree = [], isLoading: loadingCategories } =
+    useGetCategoryTree();
+  if (isLoading || loadingCategories) return <Loader />;
   if (isError) return <DisplayLoadApi />;
 
   if (!userCourses.length)
@@ -39,8 +38,14 @@ export default function UserCoursesScreen() {
       </div>
     );
 
-  // === Nhóm theo category ===
-  const categories = Object.values(COURSE_CATEGORIES);
+  const handleClick = (courseId: string, isEnrolled: boolean) => {
+    navigate(`/course/${courseId}`, { state: { isEnrolled } });
+  };
+
+  /**
+   * 🔑 CHỈ LẤY ROOT CATEGORY (LEVEL 1)
+   */
+  const rootCategories = categoryTree.filter((c) => c.level === 1);
 
   return (
     <div className="bg-primary-background">
@@ -49,21 +54,21 @@ export default function UserCoursesScreen() {
           Khoá học của tôi
         </h2>
 
-        {categories.map((category) => {
-          const filteredCourses = userCourses.filter(
-            (course: UserCourse) => course.category === category
+        {rootCategories.map((root: CategoryTreeItem) => {
+          const coursesByRoot = userCourses.filter(
+            (uc: UserCourse) => uc.category?.root_id === root.id
           );
 
-          if (filteredCourses.length === 0) return null;
+          if (coursesByRoot.length === 0) return null;
 
           return (
-            <div key={category} className="mb-12">
+            <div key={root.id} className="mb-12">
               <h3 className="text-2xl font-semibold text-blue-800 mb-6">
-                {category}
+                {root.name}
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                {filteredCourses.map((userCourse: UserCourse) => (
+                {coursesByRoot.map((userCourse: UserCourse) => (
                   <Card
                     key={userCourse.id}
                     hoverable
@@ -101,7 +106,7 @@ export default function UserCoursesScreen() {
                     <Flex vertical className="mt-2" gap={20}>
                       <Rate disabled defaultValue={userCourse.rating_average} />
                       <Tag
-                        className="text-sm font-medium w-[100px] text-center"
+                        className="text-sm font-medium w-[120px] text-center"
                         color={
                           userCourse.status === USER_COURSE_STATUS.IN_PROGRESS
                             ? "processing"

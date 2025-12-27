@@ -46,3 +46,12 @@ export interface UpdatePricingPayload {
   sale_start?: string | null; // ❗ STRING
   sale_end?: string | null; // ❗ STRING
 }
+export interface PricingPaginationResponse {
+  data: PricingRow[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}

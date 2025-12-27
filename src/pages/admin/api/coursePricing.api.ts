@@ -1,18 +1,28 @@
 import axiosClient from "src/api/axiosClient";
 import type {
-  PricingRow,
   CoursePricing,
   UpdatePricingPayload,
+  PricingPaginationResponse,
 } from "../types/pricing.types";
 
 /* ============================================
    GET ALL PRICING + COURSES (Admin)
 ============================================ */
-export const getAllCoursePricing = async (): Promise<PricingRow[]> => {
-  const res = await axiosClient.get("/course-pricing/admin/all");
+interface GetPricingParams {
+  page: number;
+  limit: number;
+}
+
+export const getAllCoursePricing = async ({
+  page,
+  limit,
+}: GetPricingParams): Promise<PricingPaginationResponse> => {
+  const res = await axiosClient.get("/course-pricing/admin/all", {
+    params: { page, limit },
+  });
+
   return res.data.data;
 };
-
 /* ============================================
    GET PRICING BY COURSE ID
 ============================================ */

@@ -6,6 +6,7 @@ import {
   PercentageOutlined,
   DatabaseOutlined,
   ShoppingOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 
 export const ADMIN_MENU_ITEMS = [
@@ -23,6 +24,11 @@ export const ADMIN_MENU_ITEMS = [
     key: "courses",
     icon: <BookOutlined />,
     label: "Courses",
+  },
+  {
+    key: "categories",
+    icon: <AppstoreOutlined />,
+    label: "Categories",
   },
   {
     key: "payments",

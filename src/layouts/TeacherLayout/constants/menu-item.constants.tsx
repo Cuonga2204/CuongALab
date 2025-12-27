@@ -1,4 +1,8 @@
-import { DashboardOutlined, BookOutlined } from "@ant-design/icons";
+import {
+  DashboardOutlined,
+  BookOutlined,
+  DatabaseOutlined,
+} from "@ant-design/icons";
 
 export const TEACHER_MENU_ITEMS = [
   {
@@ -10,5 +14,10 @@ export const TEACHER_MENU_ITEMS = [
     key: "courses",
     icon: <BookOutlined />,
     label: "Courses",
+  },
+  {
+    key: "quiz-bank",
+    icon: <DatabaseOutlined />,
+    label: "Quiz Bank",
   },
 ];

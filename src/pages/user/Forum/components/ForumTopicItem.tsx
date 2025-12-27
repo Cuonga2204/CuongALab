@@ -34,7 +34,7 @@ export default function ForumTopicItem({ topic, onClick, course_id }: Props) {
     mobile: "cyan",
   };
   const categoryColor =
-    CATEGORY_COLOR[(course?.category || "").toLowerCase()] || "default";
+    CATEGORY_COLOR[(course?.category.name || "")?.toLowerCase()] || "default";
 
   return (
     <Card
@@ -74,7 +74,7 @@ export default function ForumTopicItem({ topic, onClick, course_id }: Props) {
               <Space wrap>
                 {/* Category tag */}
                 <Tag color={categoryColor} style={{ fontWeight: 600 }}>
-                  {course.category}
+                  {course.category.name}
                 </Tag>
 
                 {/* Course name + Teacher */}

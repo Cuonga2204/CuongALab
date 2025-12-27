@@ -13,6 +13,7 @@ import {
   getCourseDetail,
   getAllCourses,
   getCoursesByTeacher,
+  getAllCoursesPublic,
 } from "src/pages/admin/api/course.api";
 
 import {
@@ -42,6 +43,13 @@ export const useGetAllCourses = (page?: number, limit?: number) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useGetAllCoursesPublic = () =>
+  useQuery({
+    queryKey: ["courses-public"],
+    queryFn: getAllCoursesPublic,
+    staleTime: 5 * 60 * 1000,
+  });
 /* ===========================================================
     GET COURSES BY TEACHER (Teacher only)
 =========================================================== */

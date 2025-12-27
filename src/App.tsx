@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminLayout from "src/layouts/AdminLayout";
 import TeacherLayout from "src/layouts/TeacherLayout/TeacherLayout";
 import UserLayout from "src/layouts/UserLayout";
+import CategoryScreen from "src/pages/admin/screens/categories/CategoryScreen";
 import CoursePricingScreen from "src/pages/admin/screens/CoursePricingScreen/CoursePricingScreen";
 import CoursesScreen from "src/pages/admin/screens/CourseScreen";
 import DashboardScreen from "src/pages/admin/screens/DashboardScreen/DashboardScreen";
@@ -55,11 +56,13 @@ function App() {
           <Route path="course-pricing" element={<CoursePricingScreen />} />
           <Route path="quiz-bank" element={<QuizBankScreen />} />
           <Route path="user-courses" element={<UserCourseScreen />} />
+          <Route path="categories" element={<CategoryScreen />} />
         </Route>
         <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />
           <Route path="users" element={<UsersScreen />} />
           <Route path="courses" element={<CoursesScreen />} />
+          <Route path="quiz-bank" element={<QuizBankScreen />} />
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
