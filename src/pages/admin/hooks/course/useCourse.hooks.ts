@@ -14,6 +14,7 @@ import {
   getAllCourses,
   getCoursesByTeacher,
   getAllCoursesPublic,
+  searchCourses,
 } from "src/pages/admin/api/course.api";
 
 import {
@@ -147,4 +148,14 @@ export const useGetCourseDetail = (id: string) =>
     queryKey: ["course-detail", id],
     queryFn: () => getCourseDetail(id),
     enabled: !!id,
+  });
+
+//Search
+
+export const useSearchCourses = (keyword: string) =>
+  useQuery({
+    queryKey: ["course-search", keyword],
+    queryFn: () => searchCourses(keyword),
+    enabled: keyword.trim().length > 0, // ⭐ FIX
+    staleTime: 2 * 60 * 1000,
   });

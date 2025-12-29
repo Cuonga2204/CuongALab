@@ -61,3 +61,12 @@ export const deleteCourse = async (id: string) => {
   );
   return response.data.data;
 };
+
+//Search with params
+
+export const searchCourses = async (q: string) => {
+  const res = await axiosClient.get("/course/search", {
+    params: { q },
+  });
+  return res.data.data;
+};

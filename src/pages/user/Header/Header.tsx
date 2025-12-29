@@ -11,12 +11,19 @@ import { useGetUserCart } from "src/pages/user/Cart/hooks/useCart.hooks";
 import { useAuthStore } from "src/store/authStore";
 import { useLogout } from "src/pages/other/auth/hooks/useLogout.hook";
 import { MyCoursesPathsEnum } from "src/pages/user/MyCourses/constants/user-courses.paths";
+import { useState } from "react";
 
 export default function UserHeader() {
   const { user } = useAuthStore();
   const { data } = useGetUserCart(user?.id || "");
   const navigate = useNavigate();
   const { logout } = useLogout();
+  const [keyword, setKeyword] = useState("");
+
+  const handleSearch = (value: string) => {
+    if (!value.trim()) return;
+    navigate(`/courses?q=${encodeURIComponent(value)}`);
+  };
 
   const handleMenuClick = ({ key }: { key: string }) => {
     if (key === "profile") navigate("/profile");
@@ -72,9 +79,17 @@ export default function UserHeader() {
         align="center"
         style={{ flex: 1, paddingLeft: 20, paddingRight: 20, maxWidth: 1000 }}
       >
-        <Input
+        <Input.Search
           placeholder="Search for anything"
           prefix={<SearchOutlined />}
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onSearch={handleSearch}
+          allowClear
+          onClear={() => {
+            setKeyword("");
+            navigate("/courses"); // ⭐ FIX: xoá param q
+          }}
           style={{ width: 350, height: 35, borderRadius: 6 }}
         />
 

@@ -5,6 +5,7 @@ import type {
   LectureProgressItem,
 } from "../../types/user-course.types";
 import { toast } from "react-toastify";
+import type { Course } from "src/types/course.type";
 
 export const useGetCoursesByUser = (userId: string) =>
   useQuery<UserCourseRecord[]>({
@@ -43,3 +44,11 @@ export const useDeleteUserCourse = () => {
     },
   });
 };
+
+export const useGetRecommendedCoursesByUser = (userId: string) =>
+  useQuery<Course[]>({
+    queryKey: ["user-course-recommend", userId],
+    queryFn: () => UserCourseApi.getRecommendedCoursesByUser(userId),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
+  });

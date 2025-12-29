@@ -4,6 +4,7 @@ import type {
   LectureProgressItem,
   UserCourseRecord,
 } from "src/pages/admin/types/user-course.types";
+import type { Course } from "src/types/course.type";
 
 export const UserCourseApi = {
   getCoursesByUser: async (userId: string): Promise<UserCourseRecord[]> => {
@@ -30,5 +31,9 @@ export const UserCourseApi = {
 
   deleteUserCourse: async (userCourseId: string) => {
     return axiosClient.delete(`/user-course/${userCourseId}`);
+  },
+  getRecommendedCoursesByUser: async (userId: string): Promise<Course[]> => {
+    const res = await axiosClient.get(`/user-course/recommend/${userId}`);
+    return res.data.data;
   },
 };
