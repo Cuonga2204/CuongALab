@@ -15,6 +15,7 @@ import {
   getCoursesByTeacher,
   getAllCoursesPublic,
   searchCourses,
+  getCourseProgress,
 } from "src/pages/admin/api/course.api";
 
 import {
@@ -158,4 +159,12 @@ export const useSearchCourses = (keyword: string) =>
     queryFn: () => searchCourses(keyword),
     enabled: keyword.trim().length > 0, // ⭐ FIX
     staleTime: 2 * 60 * 1000,
+  });
+
+//Course progress
+export const useGetCourseProgress = (courseId: string, userId: string) =>
+  useQuery({
+    queryKey: ["course-progress", courseId, userId],
+    queryFn: () => getCourseProgress(courseId, userId),
+    enabled: !!courseId && !!userId,
   });

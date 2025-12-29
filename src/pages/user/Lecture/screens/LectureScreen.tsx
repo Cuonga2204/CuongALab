@@ -9,6 +9,8 @@ import {
   Space,
   Avatar,
   Input,
+  Progress,
+  Divider,
 } from "antd";
 
 import { useGetLectureDetail } from "src/pages/admin/hooks/course/useLecture.hook";
@@ -38,6 +40,7 @@ import {
 } from "src/pages/user/Lecture/hooks/useComment.hook";
 import type { CommentItem } from "src/pages/user/Lecture/types/comment.types";
 import CommentList from "src/pages/user/Lecture/component/comment/CommentList";
+import { useGetCourseProgress } from "src/pages/admin/hooks/course/useCourse.hooks";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -75,6 +78,11 @@ export default function LectureScreen() {
     String(user?.id)
   );
   const updateProgress = useUpdateLectureProgress();
+
+  const { data: courseProgress } = useGetCourseProgress(
+    courseId || "",
+    String(user?.id || "")
+  );
 
   const [currentQuiz, setCurrentQuiz] = useState<VideoQuiz | null>(null);
   const [selectedAnswer, setSelectedAnswer] = useState<VideoQuizOption | null>(
@@ -362,7 +370,19 @@ export default function LectureScreen() {
 
         {/* SIDEBAR */}
         <Sider width={420} style={{ background: "white", paddingTop: 24 }}>
-          <div style={{ height: "calc(100vh - 120px)", overflow: "auto" }}>
+          <div style={{ padding: "0 20px" }}>
+            <Title level={5}>Tiến độ khóa học</Title>
+
+            <Progress
+              percent={courseProgress?.progressPercent || 0}
+              status={
+                courseProgress?.progressPercent === 100 ? "success" : "active"
+              }
+            />
+            <Divider />
+          </div>
+
+          <div style={{ height: "calc(100vh - 220px)", overflow: "auto" }}>
             <LectureDetailSectionList
               isEnrolled={isEnrolled}
               courseId={courseId!}

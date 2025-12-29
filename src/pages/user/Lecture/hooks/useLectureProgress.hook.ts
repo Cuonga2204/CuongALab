@@ -17,32 +17,34 @@ export const useUpdateLectureProgress = () => {
   return useMutation({
     mutationFn: updateLectureProgress,
 
-    // ⭐ UPDATE UI NGAY LẬP TỨC
+    /* =====================================
+       1️⃣ OPTIMISTIC UPDATE (SECTION)
+    ===================================== */
     onMutate: async (newProgress) => {
-      await queryClient.cancelQueries({
-        queryKey: [
-          "section-progress",
-          newProgress.section_id,
-          newProgress.user_id,
-        ],
-      });
-
-      const previous = queryClient.getQueryData([
+      const sectionKey = [
         "section-progress",
         newProgress.section_id,
         newProgress.user_id,
-      ]);
+      ];
 
-      queryClient.setQueryData(
-        ["section-progress", newProgress.section_id, newProgress.user_id],
-        (old: LectureProgressItem[] = []) => {
+      await queryClient.cancelQueries({ queryKey: sectionKey });
+
+      const previous =
+        queryClient.getQueryData<LectureProgressItem[]>(sectionKey);
+
+      queryClient.setQueryData<LectureProgressItem[]>(
+        sectionKey,
+        (old = []) => {
           const exists = old.find(
             (p) => p.lecture_id === newProgress.lecture_id
           );
 
           if (exists) {
-            exists.percentage = newProgress.percentage;
-            return [...old];
+            return old.map((p) =>
+              p.lecture_id === newProgress.lecture_id
+                ? { ...p, percentage: newProgress.percentage }
+                : p
+            );
           }
 
           return [
@@ -58,8 +60,10 @@ export const useUpdateLectureProgress = () => {
       return { previous };
     },
 
+    /* =====================================
+       2️⃣ ROLLBACK NẾU LỖI
+    ===================================== */
     onError: (_err, newProgress, context) => {
-      // rollback khi lỗi
       if (context?.previous) {
         queryClient.setQueryData(
           ["section-progress", newProgress.section_id, newProgress.user_id],
@@ -68,14 +72,27 @@ export const useUpdateLectureProgress = () => {
       }
     },
 
-    onSettled: (data, _err, newProgress) => {
-      // Sau khi server update xong, đồng bộ lại 1 lần
+    /* =====================================
+       3️⃣ ĐỒNG BỘ SERVER + COURSE PROGRESS
+    ===================================== */
+    onSettled: (_data, _err, newProgress) => {
+      // section
       queryClient.invalidateQueries({
         queryKey: [
           "section-progress",
           newProgress.section_id,
           newProgress.user_id,
         ],
+      });
+
+      // lecture
+      queryClient.invalidateQueries({
+        queryKey: ["lecture-progress", newProgress.lecture_id],
+      });
+
+      // 🔥 course progress (QUAN TRỌNG)
+      queryClient.invalidateQueries({
+        queryKey: ["course-progress", newProgress.course_id],
       });
     },
   });

@@ -70,3 +70,20 @@ export const searchCourses = async (q: string) => {
   });
   return res.data.data;
 };
+
+//Course progress
+export interface CourseProgressResponse {
+  totalLectures: number;
+  completedLectures: number;
+  progressPercent: number;
+}
+export const getCourseProgress = async (
+  courseId: string,
+  userId: string
+): Promise<CourseProgressResponse> => {
+  const res = await axiosClient.get(`/course/${courseId}/progress`, {
+    params: { userId }, // 👈 QUERY
+  });
+
+  return res.data.data;
+};

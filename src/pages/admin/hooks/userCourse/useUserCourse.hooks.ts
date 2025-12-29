@@ -44,7 +44,7 @@ export const useDeleteUserCourse = () => {
     },
   });
 };
-
+// recommend
 export const useGetRecommendedCoursesByUser = (userId: string) =>
   useQuery<Course[]>({
     queryKey: ["user-course-recommend", userId],
