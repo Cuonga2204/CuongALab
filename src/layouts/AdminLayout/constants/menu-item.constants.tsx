@@ -7,6 +7,7 @@ import {
   DatabaseOutlined,
   ShoppingOutlined,
   AppstoreOutlined,
+  FormOutlined,
 } from "@ant-design/icons";
 
 export const ADMIN_MENU_ITEMS = [
@@ -49,5 +50,11 @@ export const ADMIN_MENU_ITEMS = [
     key: "user-courses",
     icon: <ShoppingOutlined />,
     label: "User Course Management",
+  },
+  /* ===== 🔥 REVIEW FORM ===== */
+  {
+    key: "review-form",
+    icon: <FormOutlined />,
+    label: "Review Form",
   },
 ];

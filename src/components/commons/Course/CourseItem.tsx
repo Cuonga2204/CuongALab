@@ -6,8 +6,6 @@ import {
   VideoCameraOutlined,
   UserAddOutlined,
   ShoppingCartOutlined,
-  HeartOutlined,
-  HeartFilled,
 } from "@ant-design/icons";
 import { IMAGES } from "src/assets/images";
 import type { Course } from "src/types/course.type";
@@ -19,10 +17,7 @@ import {
   useGetUserCart,
 } from "src/pages/user/Cart/hooks/useCart.hooks";
 import { useGetCoursesByUser } from "src/pages/user/MyCourses/hooks/useUserCourses.hooks";
-import {
-  useGetFavoritesByUser,
-  useToggleFavorite,
-} from "src/pages/user/FavoriteCourses/hooks/useFavoriteCourse.hooks";
+import { useGetFavoritesByUser } from "src/pages/user/FavoriteCourses/hooks/useFavoriteCourse.hooks";
 import dayjs from "dayjs";
 import { getPrice } from "src/helpers/getPrice.helper";
 
@@ -42,7 +37,6 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
 
   /** === FAVORITES === */
   const { data: favorites = [] } = useGetFavoritesByUser(user?.id || "");
-  const toggleFavoriteMutation = useToggleFavorite();
 
   /** === LOCAL STATE === */
   const [isFavorite, setIsFavorite] = useState(false);
@@ -66,33 +60,6 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
     addToCartMutation.mutate(course.id);
   };
 
-  /** === TOGGLE FAVORITE === */
-  const handleToggleFavorite = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (!isAuthenticated) {
-      message.warning("Vui lòng đăng nhập trước khi thêm yêu thích!");
-      return;
-    }
-
-    setIsFavorite((prev) => !prev);
-
-    try {
-      await toggleFavoriteMutation.mutateAsync({
-        userId: user?.id,
-        courseId: course.id,
-      });
-
-      message.success(
-        !isFavorite
-          ? "Đã thêm vào danh sách yêu thích "
-          : "Đã xóa khỏi danh sách yêu thích "
-      );
-    } catch {
-      message.error("Lỗi khi cập nhật yêu thích!");
-      setIsFavorite((prev) => !prev);
-    }
-  };
   const isInCart = cart?.items?.some((item) => item.id === course.id);
   const isOwned = userCourses?.some((item) => item.courseId === course.id);
 
@@ -196,19 +163,6 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
             >
               Thêm vào giỏ
             </Button>
-
-            <Button
-              shape="circle"
-              icon={
-                isFavorite ? (
-                  <HeartFilled style={{ color: "red" }} />
-                ) : (
-                  <HeartOutlined />
-                )
-              }
-              onClick={handleToggleFavorite}
-              loading={toggleFavoriteMutation.isPending}
-            />
           </div>
         </>
       )}

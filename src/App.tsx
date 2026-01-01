@@ -7,6 +7,7 @@ import CategoryScreen from "src/pages/admin/screens/categories/CategoryScreen";
 import CoursePricingScreen from "src/pages/admin/screens/CoursePricingScreen/CoursePricingScreen";
 import CoursesScreen from "src/pages/admin/screens/CourseScreen";
 import DashboardScreen from "src/pages/admin/screens/DashboardScreen/DashboardScreen";
+import ReviewFormScreen from "src/pages/admin/screens/ReviewFormScreen/ReviewFormScreen";
 import PaymentsScreen from "src/pages/admin/screens/PaymentsScreen";
 import QuizBankScreen from "src/pages/admin/screens/QuizBankScreen/QuizBankScreen";
 import UserCourseScreen from "src/pages/admin/screens/UserCourseScreen/UserCourseScreen";
@@ -57,6 +58,7 @@ function App() {
           <Route path="quiz-bank" element={<QuizBankScreen />} />
           <Route path="user-courses" element={<UserCourseScreen />} />
           <Route path="categories" element={<CategoryScreen />} />
+          <Route path="review-form" element={<ReviewFormScreen />} />
         </Route>
         <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />

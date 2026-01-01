@@ -97,7 +97,6 @@ export default function UserHeader() {
           {[
             { label: "Home", path: "/" },
             { label: "Courses", path: "/courses" },
-            { label: "My Favorite", path: "/favorite-course" },
             { label: "My Courses", path: MyCoursesPathsEnum.MY_COURSES },
           ].map(({ label, path }) => (
             <NavLink

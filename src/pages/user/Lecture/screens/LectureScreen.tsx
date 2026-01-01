@@ -41,6 +41,8 @@ import {
 import type { CommentItem } from "src/pages/user/Lecture/types/comment.types";
 import CommentList from "src/pages/user/Lecture/component/comment/CommentList";
 import { useGetCourseProgress } from "src/pages/admin/hooks/course/useCourse.hooks";
+import { StarOutlined } from "@ant-design/icons";
+import ReviewFormUserModal from "src/pages/user/Lecture/component/comment/ReviewFormUserModal";
 
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
@@ -94,6 +96,9 @@ export default function LectureScreen() {
   const [commentInput, setCommentInput] = useState("");
   const [replyParent, setReplyParent] = useState<string | null>(null);
   const [replyInput, setReplyInput] = useState("");
+  const [openReview, setOpenReview] = useState(false);
+
+  const canReview = (courseProgress?.progressPercent || 0) >= 80;
 
   const streamUrl = `${
     import.meta.env.VITE_API_URL
@@ -379,6 +384,26 @@ export default function LectureScreen() {
                 courseProgress?.progressPercent === 100 ? "success" : "active"
               }
             />
+
+            {/* === REVIEW BUTTON === */}
+            <div style={{ marginTop: 8, width: "50%" }}>
+              <Button
+                type="primary"
+                icon={<StarOutlined />}
+                block
+                disabled={!canReview}
+                onClick={() => setOpenReview(true)}
+              >
+                Form review
+              </Button>
+
+              {!canReview && (
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  Hoàn thành ít nhất 80% để đánh giá
+                </Text>
+              )}
+            </div>
+
             <Divider />
           </div>
 
@@ -390,6 +415,13 @@ export default function LectureScreen() {
           </div>
         </Sider>
       </Layout>
+      <ReviewFormUserModal
+        open={openReview}
+        courseId={courseId!}
+        userId={String(user?.id)}
+        onClose={() => setOpenReview(false)}
+        onSuccess={() => setOpenReview(false)}
+      />
     </Layout>
   );
 }
