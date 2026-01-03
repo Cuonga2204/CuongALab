@@ -43,7 +43,6 @@ import CommentList from "src/pages/user/Lecture/component/comment/CommentList";
 import { useGetCourseProgress } from "src/pages/admin/hooks/course/useCourse.hooks";
 import { StarOutlined } from "@ant-design/icons";
 import ReviewFormUserModal from "src/pages/user/Lecture/component/comment/ReviewFormUserModal";
-
 const { Sider, Content } = Layout;
 const { Title, Text } = Typography;
 const { TextArea } = Input;
