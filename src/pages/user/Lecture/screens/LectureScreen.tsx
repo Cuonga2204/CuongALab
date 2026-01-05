@@ -157,17 +157,24 @@ export default function LectureScreen() {
   // =========================
   // QUIZ
   // =========================
-  const continueVideo = () => videoRef.current?.play();
+  const continueVideo = () => {
+    if (!videoRef.current || !currentQuiz) return;
 
+    // 👉 Đẩy video qua mốc quiz +1s
+    videoRef.current.currentTime = currentQuiz.time_in_seconds + 1;
+
+    videoRef.current.play();
+  };
   const submitQuiz = () => {
     if (!currentQuiz || !selectedAnswer) return;
 
     if (selectedAnswer.is_correct) {
       message.success("Chính xác!");
-      continueVideo();
-      setSelectedAnswer(null);
+
+      continueVideo(); // ⬅️ đẩy time trước
       setIsOpenQuiz(false);
       setCurrentQuiz(null);
+      setSelectedAnswer(null);
     } else {
       message.error("Sai rồi!");
     }

@@ -32,7 +32,7 @@ export default function CategoryChildrenModal({
         onCancel={onClose}
         footer={null}
         title={`Manage category: ${root.name}`}
-        width={900}
+        width={1200}
         centered
         destroyOnClose
         maskClosable={false}

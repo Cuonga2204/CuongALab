@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Avatar, Button, Space, Typography, Input } from "antd";
+import { LikeFilled, LikeOutlined } from "@ant-design/icons";
 import { useAuthStore } from "src/store/authStore";
 import type { CommentItem } from "src/pages/user/Lecture/types/comment.types";
 import {
@@ -7,7 +8,7 @@ import {
   useLikeComment,
   useUnlikeComment,
 } from "src/pages/user/Lecture/hooks/useComment.hook";
-import { LikeFilled, LikeOutlined } from "@ant-design/icons";
+import { timeAgo } from "src/helpers/time.helpers";
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -17,21 +18,26 @@ interface Props {
   isEnrolled: boolean;
 }
 
+/* ======================
+   TIME AGO HELPER
+====================== */
+
 export default function CommentNode({ comment, isEnrolled }: Props) {
   const { user } = useAuthStore();
-  const addComment = useAddComment(comment.lecture_id);
 
+  const addComment = useAddComment(comment.lecture_id);
   const like = useLikeComment(comment.lecture_id);
   const unlike = useUnlikeComment(comment.lecture_id);
 
-  /** Check user đã like comment chưa */
   const isLiked = comment.likes?.includes(String(user?.id));
 
   const [showReplies, setShowReplies] = useState(false);
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
 
-  /** Submit reply */
+  /* ======================
+        SUBMIT REPLY
+  ====================== */
   const submitReply = () => {
     if (!replyText.trim()) return;
 
@@ -47,7 +53,9 @@ export default function CommentNode({ comment, isEnrolled }: Props) {
     setShowReplies(true);
   };
 
-  /** Toggle like / unlike */
+  /* ======================
+        LIKE / UNLIKE
+  ====================== */
   const toggleLike = () => {
     if (!user) return;
 
@@ -70,42 +78,47 @@ export default function CommentNode({ comment, isEnrolled }: Props) {
         <Avatar src={comment.user_id.avatar}>{comment.user_id.name[0]}</Avatar>
 
         <div style={{ width: "100%" }}>
-          {/* USER NAME + CONTENT */}
-          <Text strong>{comment.user_id.name}</Text>
+          {/* ======================
+                NAME + TIME
+          ====================== */}
+          <Space size={8}>
+            <Text strong>{comment.user_id.name}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              {timeAgo(comment.createdAt)}
+            </Text>
+          </Space>
+
+          {/* ======================
+                CONTENT
+          ====================== */}
           <div style={{ marginTop: 4 }}>{comment.content}</div>
 
-          {/* ACTIONS: LIKE - REPLY */}
-          <Space style={{ marginTop: 6 }}>
-            {/* LIKE BUTTON */}
+          {/* ======================
+                ACTIONS
+          ====================== */}
+          <Space size={12} style={{ marginTop: 6 }}>
+            {/* LIKE */}
             <Button
               size="small"
               onClick={toggleLike}
+              type="text"
               style={{
-                borderRadius: "20px",
-                padding: "4px 10px",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                background: isLiked ? "#e6f4ff" : "#f5f5f5",
-                border: "none",
+                color: isLiked ? "#1677ff" : "#595959",
               }}
             >
-              {isLiked ? (
-                <LikeFilled style={{ fontSize: 16, color: "#1677ff" }} />
-              ) : (
-                <LikeOutlined style={{ fontSize: 16 }} />
-              )}
-
-              <span style={{ fontSize: 14, color: "#333" }}>
-                {comment.likes.length}
-              </span>
+              {isLiked ? <LikeFilled /> : <LikeOutlined />}
+              {comment.likes.length}
             </Button>
 
-            {/* REPLY BUTTON */}
+            {/* REPLY */}
             {isEnrolled && (
               <Button
                 type="link"
                 size="small"
+                style={{ padding: 0 }}
                 onClick={() => setReplying(!replying)}
               >
                 Reply
@@ -113,7 +126,9 @@ export default function CommentNode({ comment, isEnrolled }: Props) {
             )}
           </Space>
 
-          {/* REPLY INPUT */}
+          {/* ======================
+                REPLY INPUT
+          ====================== */}
           {replying && (
             <div style={{ marginTop: 8 }}>
               <TextArea
@@ -134,7 +149,9 @@ export default function CommentNode({ comment, isEnrolled }: Props) {
             </div>
           )}
 
-          {/* SHOW REPLIES BUTTON */}
+          {/* ======================
+                TOGGLE REPLIES
+          ====================== */}
           {comment.replies.length > 0 && (
             <Button
               type="link"
@@ -148,7 +165,9 @@ export default function CommentNode({ comment, isEnrolled }: Props) {
             </Button>
           )}
 
-          {/* REPLIES LIST */}
+          {/* ======================
+                REPLIES LIST
+          ====================== */}
           {showReplies && (
             <div style={{ marginTop: 12, marginLeft: 48 }}>
               {comment.replies.map((r) => (

@@ -1,7 +1,9 @@
+import { Empty } from "antd";
+
 export const DisplayLoadApi = () => {
   return (
-    <div className="text-center text-red-500 font-medium mt-8">
-      ❌ Failed to load API. Please try again.
+    <div className="flex justify-center items-center mt-12">
+      <Empty description="No data available" />
     </div>
   );
 };
