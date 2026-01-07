@@ -1,3 +1,9 @@
+export interface LearningProfile {
+  role?: string; // student | working | ...
+  goals?: string[]; // get_job | learn_basic | ...
+  interests?: string[]; // frontend | backend | ai (AI normalize)
+  level?: string; // beginner | intermediate | advanced
+}
 export interface User {
   id: string;
   name: string;
@@ -5,6 +11,9 @@ export interface User {
   role: string;
   avatar?: string;
   phone?: number;
+  /* ===== ONBOARDING / AI ===== */
+  learning_profile?: LearningProfile;
+  has_onboarding: boolean;
   createdAt: string;
   updatedAt: string;
 }

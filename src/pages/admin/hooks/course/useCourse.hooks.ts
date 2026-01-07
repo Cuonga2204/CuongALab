@@ -16,6 +16,7 @@ import {
   getAllCoursesPublic,
   searchCourses,
   getCourseProgress,
+  getFeaturedCourses,
 } from "src/pages/admin/api/course.api";
 
 import {
@@ -168,3 +169,12 @@ export const useGetCourseProgress = (courseId: string, userId: string) =>
     queryFn: () => getCourseProgress(courseId, userId),
     enabled: !!courseId && !!userId,
   });
+//Course nổi bật
+export const useFeaturedCourses = () => {
+  return useQuery<Course[]>({
+    queryKey: ["featured-courses"],
+    queryFn: getFeaturedCourses,
+    staleTime: 5 * 60 * 1000, // cache 5 phút
+    refetchOnWindowFocus: false,
+  });
+};

@@ -87,3 +87,9 @@ export const getCourseProgress = async (
 
   return res.data.data;
 };
+
+/** === GET FEATURED COURSES (TOP BY STUDENT COUNT) === */
+export const getFeaturedCourses = async () => {
+  const res = await axiosClient.get("/course/featured");
+  return res.data.data;
+};

@@ -40,3 +40,22 @@ export const updateUserApi = async (
   );
   return res.data.data;
 };
+
+export const getUserDetailsApi = async (userId: string): Promise<User> => {
+  const res = await axiosClient.get(`/user/${userId}`);
+  return res.data.data;
+};
+
+/* =====================
+   SUBMIT ONBOARDING
+===================== */
+export const submitOnboardingApi = async (payload: {
+  userId: string;
+  role: string;
+  goals: string[];
+  raw_interests: string[];
+  description?: string;
+}) => {
+  const res = await axiosClient.post("/users/onboarding", payload);
+  return res.data.data;
+};

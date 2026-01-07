@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import {
   deleteUserApi,
   getTeachers,
+  getUserDetailsApi,
   getUsers,
   updateUserApi,
 } from "src/pages/admin/api/user.api";
@@ -63,5 +64,14 @@ export const useDeleteUser = () => {
     },
 
     onError: () => toast.error("Delete failed"),
+  });
+};
+
+export const useUserDetails = (userId?: string) => {
+  return useQuery({
+    queryKey: ["user-details", userId],
+    queryFn: () => getUserDetailsApi(userId!),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000,
   });
 };

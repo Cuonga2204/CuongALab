@@ -112,14 +112,13 @@ const CourseItem = ({ course, isUserCourse = false }: CourseItemProps) => {
 
       <div className="text-sm text-gray-600 mt-3 space-y-1">
         <p>
-          <VideoCameraOutlined /> {course.total_lectures} bài giảng -{" "}
-          {course.total_sections} phần
+          <VideoCameraOutlined /> Số bài giảng: {course.total_sections}
         </p>
         <p>
           <TeamOutlined /> {course.student_count} học viên
         </p>
         <p>
-          <ClockCircleOutlined /> Thời lượng: {course.total_video_duration} phút
+          <ClockCircleOutlined /> tổng module: {course.total_sections}
         </p>
         <p>
           <UserAddOutlined /> Giảng viên: {course.name_teacher}
