@@ -1,19 +1,25 @@
 import {
-  DashboardOutlined,
+  AppstoreOutlined,
+  // DashboardOutlined,
   BookOutlined,
   DatabaseOutlined,
 } from "@ant-design/icons";
 
 export const TEACHER_MENU_ITEMS = [
-  {
-    key: "dashboard",
-    icon: <DashboardOutlined />,
-    label: "Dashboard",
-  },
+  // {
+  //   key: "dashboard",
+  //   icon: <DashboardOutlined />,
+  //   label: "Dashboard",
+  // },
   {
     key: "courses",
     icon: <BookOutlined />,
     label: "Courses",
+  },
+  {
+    key: "categories",
+    icon: <AppstoreOutlined />,
+    label: "Categories",
   },
   {
     key: "quiz-bank",

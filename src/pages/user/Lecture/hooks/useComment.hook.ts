@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   addCommentApi,
+  deleteCommentApi,
+  editCommentApi,
   getCommentsApi,
   likeCommentApi,
   unlikeCommentApi,
@@ -51,6 +53,40 @@ export const useUnlikeComment = (lectureId: string) => {
       commentId: string;
       userId: string;
     }) => unlikeCommentApi(commentId, userId),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["comments", lectureId] }),
+  });
+};
+
+export const useEditComment = (lectureId: string) => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      commentId,
+      userId,
+      content,
+    }: {
+      commentId: string;
+      userId: string;
+      content: string;
+    }) => editCommentApi(commentId, userId, content),
+    onSuccess: () =>
+      qc.invalidateQueries({ queryKey: ["comments", lectureId] }),
+  });
+};
+
+export const useDeleteComment = (lectureId: string) => {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      commentId,
+      userId,
+    }: {
+      commentId: string;
+      userId: string;
+    }) => deleteCommentApi(commentId, userId),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["comments", lectureId] }),
   });

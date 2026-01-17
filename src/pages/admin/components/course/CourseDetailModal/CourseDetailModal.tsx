@@ -75,6 +75,7 @@ export default function CourseDetailModal({
   ========================================================= */
   const updateCourseMutation = useUpdateCourse();
   const { data: teachers = [], isLoading: loadingTeachers } = useGetTeachers();
+  console.log(teachers);
 
   const { data: categoryTree = [] } = useGetCategoryTree();
 

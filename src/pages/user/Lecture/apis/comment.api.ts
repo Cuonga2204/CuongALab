@@ -25,3 +25,24 @@ export const unlikeCommentApi = async (commentId: string, userId: string) => {
   const res = await axiosClient.post("/comments/unlike", { commentId, userId });
   return res.data.data;
 };
+
+export const editCommentApi = async (
+  commentId: string,
+  userId: string,
+  content: string
+) => {
+  const res = await axiosClient.put("/comments/edit", {
+    commentId,
+    userId,
+    content,
+  });
+  return res.data.data;
+};
+
+export const deleteCommentApi = async (commentId: string, userId: string) => {
+  const res = await axiosClient.post("/comments/delete", {
+    commentId,
+    userId,
+  });
+  return res.data.data;
+};

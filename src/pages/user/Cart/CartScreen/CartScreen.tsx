@@ -98,9 +98,6 @@ export default function CartScreen() {
                       >
                         <DeleteOutlined /> Remove
                       </span>
-                      <span className="hover:underline cursor-pointer text-blue-400">
-                        Move to Wishlist
-                      </span>
                     </Flex>
                   </div>
                 </Flex>
@@ -144,7 +141,7 @@ export default function CartScreen() {
               >
                 Proceed to Checkout →
               </Button>
-
+              {/* 
               <Button
                 type="primary"
                 style={{
@@ -158,7 +155,7 @@ export default function CartScreen() {
                 }}
               >
                 Apply Coupon
-              </Button>
+              </Button> */}
             </Flex>
           </div>
         </div>

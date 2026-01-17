@@ -26,6 +26,7 @@ import MyCourses from "src/pages/user/MyCourses/UserCoursesScreen/UserCoursesScr
 import PaymentFailed from "src/pages/user/Payment/PaymentFailedScreen";
 import PaymentSuccess from "src/pages/user/Payment/PaymentSuccessScreen";
 import { useAuthStore } from "src/store/authStore";
+// import ProtectedRoute from "src/routes/ProtectedRoute";
 
 function App() {
   useEffect(() => {
@@ -35,6 +36,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* <Route element={<ProtectedRoute allowedRoles={["user", "teacher"]} />}> */}
         <Route element={<UserLayout />}>
           <Route path="/" element={<LandingPage />} />
           <Route path="/courses" element={<Courses />} />
@@ -49,6 +51,8 @@ function App() {
             element={<ForumTopicDetailScreen />}
           />
         </Route>
+        {/* </Route> */}
+        {/* <Route element={<ProtectedRoute allowedRoles={["admin"]} />}> */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardScreen />} />
           <Route path="users" element={<UsersScreen />} />
@@ -60,12 +64,17 @@ function App() {
           <Route path="categories" element={<CategoryScreen />} />
           <Route path="review-form" element={<ReviewFormScreen />} />
         </Route>
+        {/* </Route> */}
+        {/* <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}> */}
         <Route path="/teacher" element={<TeacherLayout />}>
           <Route index element={<DashboardScreen />} />
           <Route path="users" element={<UsersScreen />} />
           <Route path="courses" element={<CoursesScreen />} />
+          <Route path="categories" element={<CategoryScreen />} />
           <Route path="quiz-bank" element={<QuizBankScreen />} />
         </Route>
+        {/* </Route> */}
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/payment-success" element={<PaymentSuccess />} />

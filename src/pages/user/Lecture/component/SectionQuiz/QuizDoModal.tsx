@@ -27,18 +27,27 @@ export default function QuizDoModal({
 }: QuizDoModalProps) {
   const submitMutation = useSubmitQuiz();
 
+  /* ================= STATE ================= */
   const [answers, setAnswers] = useState<AnswerMap>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+
   const [submitResult, setSubmitResult] = useState<{
     percentage: number;
     is_passed: boolean;
   } | null>(null);
 
   const [showCorrect, setShowCorrect] = useState(false);
+  const [reviewMode, setReviewMode] = useState(false); // ⭐ NEW
 
-  /* ======================
-      SELECT OPTION
-  ====================== */
+  const currentQuestion: SectionQuizQuestion = quiz.questions[currentIndex];
+
+  const isLastQuestion = currentIndex === quiz.questions.length - 1;
+  const currentAnswers = answers[currentQuestion.id] || [];
+
+  /* ================= SELECT OPTION ================= */
   const toggleSelect = (questionId: string, optionId: string) => {
+    if (reviewMode) return; // ❌ KHÔNG cho sửa khi review
+
     setAnswers((prev) => {
       const current = prev[questionId] || [];
       const updated = current.includes(optionId)
@@ -49,9 +58,14 @@ export default function QuizDoModal({
     });
   };
 
-  /* ======================
-        SUBMIT QUIZ
-  ====================== */
+  /* ================= NEXT QUESTION ================= */
+  const handleNext = () => {
+    if (!isLastQuestion) {
+      setCurrentIndex((prev) => prev + 1);
+    }
+  };
+
+  /* ================= SUBMIT QUIZ ================= */
   const handleSubmit = () => {
     submitMutation.mutate(
       {
@@ -67,36 +81,44 @@ export default function QuizDoModal({
       },
       {
         onSuccess: (res) => {
-          // ✅ LUÔN SET KẾT QUẢ LẦN SUBMIT HIỆN TẠI
           setSubmitResult({
             percentage: res.percentage,
             is_passed: res.is_passed,
           });
 
-          setShowCorrect(false);
+          setShowCorrect(true);
 
-          // ✅ CHỈ ĐÓNG MODAL KHI LẦN NÀY PASS
-          if (res.is_passed) {
-            setTimeout(() => {
-              onClose();
-            }, 1200);
+          if (!res.is_passed) {
+            // 🔴 FAIL → bật review mode
+            setReviewMode(true);
+          } else {
+            // 🟢 PASS → đóng modal
+            setTimeout(() => onClose(), 1200);
           }
         },
       }
     );
   };
 
+  /* ================= RESET QUIZ ================= */
+  const resetQuiz = () => {
+    setAnswers({});
+    setCurrentIndex(0);
+    setSubmitResult(null);
+    setShowCorrect(false);
+    setReviewMode(false);
+  };
+
+  /* ================= RENDER ================= */
   return (
     <Modal
       open
       width={800}
       footer={false}
       onCancel={onClose}
-      title={quiz.title}
+      title={`${quiz.title} (${currentIndex + 1}/${quiz.questions.length})`}
     >
-      {/* ======================
-            RESULT ALERT
-      ====================== */}
+      {/* ===== RESULT ===== */}
       {submitResult && (
         <Alert
           showIcon
@@ -110,78 +132,95 @@ export default function QuizDoModal({
         />
       )}
 
-      {/* ======================
-            QUESTIONS
-      ====================== */}
-      {quiz.questions.map((q: SectionQuizQuestion, idx: number) => (
-        <div key={q.id} className="mb-4 border p-3 rounded">
-          <strong>
-            {idx + 1}. {q.question}
-          </strong>
+      {/* ===== QUESTION ===== */}
+      <div className="mb-4 border p-4 rounded">
+        <strong>
+          {currentIndex + 1}. {currentQuestion.question}
+        </strong>
 
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            {q.options.map((opt, i) => {
-              const selected = answers[q.id]?.includes(opt.id);
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          {currentQuestion.options.map((opt, i) => {
+            const isSelected = currentAnswers.includes(opt.id);
 
-              const correctStyle =
-                showCorrect && opt.is_correct
-                  ? "border-green-500 bg-green-50"
-                  : "";
+            const correctStyle =
+              showCorrect && opt.is_correct
+                ? "border-green-500 bg-green-50"
+                : showCorrect && isSelected
+                ? "border-red-500 bg-red-50"
+                : "";
 
-              return (
-                <div
-                  key={opt.id}
-                  onClick={() => toggleSelect(q.id, opt.id)}
-                  className={`p-2 border rounded cursor-pointer
-                    ${selected ? "border-blue-500 bg-blue-50" : ""}
-                    ${correctStyle}`}
-                >
-                  <strong>{String.fromCharCode(65 + i)}.</strong> {opt.text}
-                </div>
-              );
-            })}
-          </div>
+            return (
+              <div
+                key={opt.id}
+                onClick={() => toggleSelect(currentQuestion.id, opt.id)}
+                className={`p-3 border rounded cursor-pointer transition
+                  ${isSelected ? "border-blue-500 bg-blue-50" : ""}
+                  ${correctStyle}`}
+              >
+                <strong>{String.fromCharCode(65 + i)}.</strong> {opt.text}
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </div>
 
       <Divider />
 
-      {/* ======================
-            ACTION BUTTONS
-      ====================== */}
-      <div className="flex gap-2">
-        {/* 👁️ HIỂN THỊ ĐÁP ÁN */}
+      {/* ===== ACTION BUTTONS ===== */}
+      <div className="flex gap-2 flex-wrap">
+        {/* REVIEW NAVIGATION */}
+        {reviewMode && (
+          <>
+            <Button
+              disabled={currentIndex === 0}
+              onClick={() => setCurrentIndex((i) => i - 1)}
+            >
+              ← Câu trước
+            </Button>
+
+            <Button
+              disabled={currentIndex === quiz.questions.length - 1}
+              onClick={() => setCurrentIndex((i) => i + 1)}
+            >
+              Câu tiếp →
+            </Button>
+          </>
+        )}
+
+        {/* TOGGLE ANSWER */}
         {submitResult && (
           <Button onClick={() => setShowCorrect((p) => !p)}>
             {showCorrect ? "Ẩn đáp án" : "Hiển thị đáp án"}
           </Button>
         )}
 
-        {/* 🔁 FAIL → LÀM LẠI (KHÔNG ĐÓNG MODAL) */}
+        {/* RESET */}
         {submitResult && !submitResult.is_passed && (
+          <Button onClick={resetQuiz}>Làm lại</Button>
+        )}
+
+        {/* NEXT / SUBMIT */}
+        {!reviewMode && !isLastQuestion && (
           <Button
-            onClick={() => {
-              setAnswers({});
-              setSubmitResult(null);
-              setShowCorrect(false);
-            }}
+            type="primary"
+            disabled={currentAnswers.length === 0}
+            onClick={handleNext}
           >
-            Làm lại
+            Câu tiếp theo →
           </Button>
         )}
 
-        <Button
-          type="primary"
-          block
-          loading={submitMutation.isPending}
-          disabled={
-            Object.keys(answers).length !== quiz.questions.length ||
-            Object.values(answers).some((a) => a.length === 0)
-          }
-          onClick={handleSubmit}
-        >
-          Submit Quiz
-        </Button>
+        {!reviewMode && isLastQuestion && (
+          <Button
+            type="primary"
+            block
+            loading={submitMutation.isPending}
+            disabled={Object.keys(answers).length !== quiz.questions.length}
+            onClick={handleSubmit}
+          >
+            Submit Quiz
+          </Button>
+        )}
       </div>
     </Modal>
   );
